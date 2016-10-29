@@ -131,3 +131,4 @@ Then run the tests:
 ## TODO
 
 - Test `pg.Client`.
+- Add `withTransaction` to `pg.Client`.
