@@ -10,13 +10,15 @@ Useful extensions to the node-postgres client.
 - Extends pg.Client with prototype methods `many`, `one`.
 - Exposes a `q` template literal helper for writing queries.
 
-        const uname = 'nisha42'
+    ``` javascript
+    const uname = 'nisha42'
 
-        pool.one(...q`
-          SELECT *
-          FROM users
-          WHERE lower(uname) = lower(${uname})
-        `)
+    await pool.one(...q`
+      SELECT *
+      FROM users
+      WHERE lower(uname) = lower(${uname})
+    `)
+    ```
 
 ## Install
 
