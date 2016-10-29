@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "ava": "^0.16.0",
+    "pg": "^6.1.0"
+  },
+  "scripts": {
+    "test": "node --harmony-async-await node_modules/.bin/ava"
+  },
+  "devDependencies": {
+    "ava": "^0.16.0"
+  }
+}
