@@ -2,17 +2,16 @@
 const test = require('ava')
 
 const {pg, parseUrl, q} = require('../src')(require('pg'))
-//const {pg: pgQ} = require('../src')(require('pg'), {q: true})
-
-// createdb pg-extra-test
-// psql pg-extra-test
-// > create table bars (n int not null);
-// > insert into bars (n) values (1), (2), (3);
-
 
 // Q TAG DISABLED
 
 const pool = new pg.Pool(parseUrl('postgres://localhost:5432/pg-extra-test'))
+
+
+test('query() works', async (t) => {
+  const result = await pool.query('SELECT * FROM bars WHERE n = ANY ($1) ORDER BY n', [[1,3]])
+  t.deepEqual(result.rows, [{n:1},{n:3}])
+})
 
 
 test('many() works', async (t) => {

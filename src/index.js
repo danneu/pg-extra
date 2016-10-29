@@ -10,7 +10,7 @@ function tagged (fn) {
     if (tagged !== $tagged) {
       throw new Error('sql must be generated from the "q" tag')
     }
-    return await fn.call(this, sql, params)
+    return fn.call(this, sql, params)
   }
 }
 
@@ -19,7 +19,7 @@ function notTagged (fn) {
     if (Array.isArray(sql) && sql[0] === $tagged) {
       throw new Error('cannot use the "q" tag unless you enable it with {q: true}')
     }
-    return await fn.call(this, sql, params)
+    return fn.call(this, sql, params)
   }
 }
 
@@ -38,15 +38,13 @@ function parseUrl (url) {
   }
 }
 
-
-
 async function many (sql, params) {
-  const result = await this.query(sql, params)
+  const result = await this._query(sql, params)
   return result.rows
 }
 
 async function one (sql, params) {
-  const result = await this.query(sql, params)
+  const result = await this._query(sql, params)
   if (result.rows.length > 1) {
     console.warn('one() returned more than one row')
   }
@@ -67,9 +65,9 @@ async function withTransaction (runner) {
     client.release()
 
     if (err.code === '40P01') { // Deadlock
-      return await withTransaction(runner)
+      return withTransaction(runner)
     } else if (err.code === '40001') { // Serialization error
-      return await withTransaction(runner)
+      return withTransaction(runner)
     }
     throw err
   }
@@ -77,20 +75,20 @@ async function withTransaction (runner) {
   try {
     await client.query('BEGIN')
   } catch (err) {
-    return await rollback(err)
+    return rollback(err)
   }
 
   let result
   try {
     result = await runner(client)
   } catch (err) {
-    return await rollback(err)
+    return rollback(err)
   }
 
   try {
     await client.query('COMMIT')
   } catch (err) {
-    return await rollback(err)
+    return rollback(err)
   }
 
   client.release()
@@ -102,9 +100,17 @@ async function withTransaction (runner) {
 
 module.exports = function (pg, {q: requireQ} ={}) {
   const wrapper = requireQ ? tagged : notTagged
+  pg.Pool.prototype._query = pg.Pool.prototype.query
+  pg.Pool.prototype.query = wrapper(async function (sql, params) {
+    return this._query(sql, params)
+  })
   pg.Pool.prototype.many = wrapper(many)
   pg.Pool.prototype.one = wrapper(one)
   pg.Pool.prototype.withTransaction = withTransaction
+  pg.Client.prototype._query = pg.Client.prototype.query
+  pg.Client.prototype.query = wrapper(async function (sql, params) {
+    return this._query(sql, params)
+  })
   pg.Client.prototype.many = wrapper(many)
   pg.Client.prototype.one = wrapper(one)
   return {pg, q, parseUrl}
