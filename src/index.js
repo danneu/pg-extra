@@ -78,12 +78,19 @@ async function withTransaction (runner) {
 }
 
 
-
-module.exports = function (pg) {
+function extend (pg) {
   pg.Pool.prototype.many = many
   pg.Pool.prototype.one = one
   pg.Pool.prototype.withTransaction = withTransaction
   pg.Client.prototype.many = many
   pg.Client.prototype.one = one
-  return {pg, q, parseUrl}
+  return pg
+}
+
+
+// API
+
+
+module.exports = {
+  extend, q, parseUrl
 }

@@ -34,7 +34,8 @@ Until then, it only support Node v7.x with the flag:
 ## Usage
 
 ``` javascript
-const {pg, q, parseUrl} = require('pg-extra')(require('pg'))
+const {extend, q, parserUrl} = require('pg-extra')
+const pg = extend(require('pg'))
 
 const url = 'postgres://user:pass@localhost:5432/my-db'
 const pool = new pg.Pool(Object.assign(parseUrl(url), {
