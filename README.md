@@ -37,7 +37,7 @@ const pool = new pg.Pool(Object.assign(parseUrl(url), {
 }))
 
 exports.findUserByUname = async function (uname) {
-  return await pool.one(q`
+  return pool.one(q`
     SELECT *
     FROM users
     WHERE lower(uname) = lower(${uname})
@@ -45,7 +45,7 @@ exports.findUserByUname = async function (uname) {
 }
 
 exports.listUsersInCities = async function (cities) {
-  return await pool.many(q`
+  return pool.many(q`
     SELECT *
     FROM users
     WHERE city = ANY(${cities})
@@ -53,7 +53,7 @@ exports.listUsersInCities = async function (cities) {
 }
 
 exports.transferBalance = async function (from, to, amount) {
-  return await pool.withTransaction(async (client) => {
+  return pool.withTransaction(async (client) => {
     await client.query(q`
       UPDATE accounts SET amount = amount - ${amount} WHERE id = ${from}
     `)
