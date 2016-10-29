@@ -39,12 +39,12 @@ function parseUrl (url) {
 }
 
 async function many (sql, params) {
-  const result = await this._query(sql, params)
+  const result = await this.query(sql, params)
   return result.rows
 }
 
 async function one (sql, params) {
-  const result = await this._query(sql, params)
+  const result = await this.query(sql, params)
   if (result.rows.length > 1) {
     console.warn('one() returned more than one row')
   }
@@ -100,17 +100,11 @@ async function withTransaction (runner) {
 
 module.exports = function (pg, {q: requireQ} ={}) {
   const wrapper = requireQ ? tagged : notTagged
-  pg.Pool.prototype._query = pg.Pool.prototype.query
-  pg.Pool.prototype.query = wrapper(async function (sql, params) {
-    return this._query(sql, params)
-  })
+  pg.Pool.prototype.exec = wrapper(pg.Pool.prototype.query)
   pg.Pool.prototype.many = wrapper(many)
   pg.Pool.prototype.one = wrapper(one)
   pg.Pool.prototype.withTransaction = withTransaction
-  pg.Client.prototype._query = pg.Client.prototype.query
-  pg.Client.prototype.query = wrapper(async function (sql, params) {
-    return this._query(sql, params)
-  })
+  pg.Client.prototype.exec = wrapper(pg.Client.prototype.query)
   pg.Client.prototype.many = wrapper(many)
   pg.Client.prototype.one = wrapper(one)
   return {pg, q, parseUrl}
