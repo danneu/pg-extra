@@ -1,12 +1,21 @@
 {
-  "dependencies": {
-    "ava": "^0.16.0",
-    "pg": "^6.1.0"
-  },
+  "name": "pg-extra",
+  "description": "helpful extensions for node-postgres",
+  "version": "0.0.1",
+  "main": "src/index.js",
   "scripts": {
     "test": "node --harmony-async-await node_modules/.bin/ava"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danneu/pg-extra.git"
+  },
+  "author": "Dan Neumann <danrodneu@gmail.com> (https://github.com/danneu)",
+  "dependencies": {
+  },
   "devDependencies": {
-    "ava": "^0.16.0"
-  }
+    "ava": "^0.16.0",
+    "pg": "^6.1.0"
+  },
+  "license": "MIT"
 }
