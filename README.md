@@ -27,7 +27,7 @@ Useful extensions to the node-postgres pool and client.
 ## Usage
 
 ``` javascript
-const {extend, q, parserUrl} = require('pg-extra')
+const {extend, q, parseUrl} = require('pg-extra')
 const pg = extend(require('pg'))
 
 const url = 'postgres://user:pass@localhost:5432/my-db'
@@ -66,14 +66,14 @@ exports.transferBalance = async function (from, to, amount) {
 
 ## Extensions
 
-### When `{ q: false }`
+### Without the `q` helper
 
 - `pool.many(sql, params)`: Resolves an array of rows.
 - `pool.one(sql, params)`: Resolves one row or null.
 - `client.many(sql, params)`: Resolves an array of rows.
 - `client.one(sql, params)`: Resolves one row or null.
 
-### When `{ q: true }`
+### With the `q` helper
 
 - `pool.many(...q``sql``)`: Resolves an array of rows.
 - `pool.one(...q``sql``)`: Resolves one row or null.
