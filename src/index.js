@@ -1,27 +1,7 @@
 
 const {parse} = require('url')
 // 1st
-const $tagged = Symbol('$tagged')
-const q = require('./q')($tagged)
-
-
-function tagged (fn) {
-  return async function ([tagged, sql, params]) {
-    if (tagged !== $tagged) {
-      throw new Error('sql must be generated from the "q" tag')
-    }
-    return fn.call(this, sql, params)
-  }
-}
-
-function notTagged (fn) {
-  return async function (sql, params) {
-    if (Array.isArray(sql) && sql[0] === $tagged) {
-      throw new Error('cannot use the "q" tag unless you enable it with {q: true}')
-    }
-    return fn.call(this, sql, params)
-  }
-}
+const q = require('./q')
 
 function parseUrl (url) {
   const params = parse(url)
@@ -29,12 +9,13 @@ function parseUrl (url) {
   if (params.auth) {
     [user, password] = params.auth.split(':')
   }
+  const [_, database] = params.pathname.match(/\/(.+)$/) || []
   return {
     user,
     password,
     host: params.hostname,
     port: params.port,
-    database: params.pathname.split('/')[1]
+    database: database
   }
 }
 
@@ -98,14 +79,11 @@ async function withTransaction (runner) {
 
 
 
-module.exports = function (pg, {q: requireQ} ={}) {
-  const wrapper = requireQ ? tagged : notTagged
-  pg.Pool.prototype.exec = wrapper(pg.Pool.prototype.query)
-  pg.Pool.prototype.many = wrapper(many)
-  pg.Pool.prototype.one = wrapper(one)
+module.exports = function (pg) {
+  pg.Pool.prototype.many = many
+  pg.Pool.prototype.one = one
   pg.Pool.prototype.withTransaction = withTransaction
-  pg.Client.prototype.exec = wrapper(pg.Client.prototype.query)
-  pg.Client.prototype.many = wrapper(many)
-  pg.Client.prototype.one = wrapper(one)
+  pg.Client.prototype.many = many
+  pg.Client.prototype.one = one
   return {pg, q, parseUrl}
 }

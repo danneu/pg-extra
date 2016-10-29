@@ -1,22 +1,21 @@
 
 const test = require('ava')
 
-const $tagged = Symbol('$tagged')
-const q = require('../src/q')($tagged)
+const q = require('../src/q')
 
 
 test('works', (t) => {
-  t.deepEqual(q`SELECT 1`, [$tagged, 'SELECT 1', []])
+  t.deepEqual(q`SELECT 1`, ['SELECT 1', []])
 })
 
 
 test('interpolates one binding', (t) => {
-  t.deepEqual(q`SELECT ${42}::int`, [$tagged, 'SELECT $1::int', [42]])
+  t.deepEqual(q`SELECT ${42}::int`, ['SELECT $1::int', [42]])
 })
 
 
 test('interpolates multiple bindings', (t) => {
-  const [_, query, params] = q`
+  const [query, params] = q`
     SELECT *
     FROM users
     WHERE lower(uname) = lower(${'foo'})
