@@ -86,24 +86,28 @@ Toggle on the `q` helpers with `require('pg-extra')(require('pg'), { q: true })`
 
 `q` is a simple helper that translates this:
 
-    q`
-      SELECT *
-      FROM users
-      WHERE lower(uname) = lower(${'nisha42'})
-        AND faveFood = ANY (${['kibble', 'tuna']})
-    `
+``` javascript
+q`
+  SELECT *
+  FROM users
+  WHERE lower(uname) = lower(${'nisha42'})
+    AND faveFood = ANY (${['kibble', 'tuna']})
+`
+```
 
 into the sql bindings + params tuple that node-postgres expects:
 
-    [ Symbol('$tagged'),
-      `
-        SELECT *
-        FROM users
-        WHERE lower(uname) = lower($1)
-          AND faveFood = ANY ($2)
-      `,
-      ['nisha42', ['kibble', 'tuna']]
-    ]
+``` javascript
+[ Symbol('$tagged'),
+  `
+    SELECT *
+    FROM users
+    WHERE lower(uname) = lower($1)
+      AND faveFood = ANY ($2)
+  `,
+  ['nisha42', ['kibble', 'tuna']]
+]
+```
 
 The first element of the tuple is an internal value that pg-extra checks for
 when you pass it into `query`/`many`/`one`.
@@ -133,5 +137,6 @@ Then run the tests:
 ## TODO
 
 - Rethink the API so that `q` queries and `(sql, params)` queries can
-  live alongside each other. Right now the global prototype overload
+  live alongside each other. Right now the nasty global prototype overload
   prevents this.
+- Test `pg.Client`.
