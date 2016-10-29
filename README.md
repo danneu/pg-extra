@@ -1,6 +1,4 @@
 
-(Experimental)
-
 # pg-extra [![Build Status](https://travis-ci.org/danneu/pg-extra.svg?branch=master)](https://travis-ci.org/danneu/pg-extra) [![NPM version](https://badge.fury.io/js/pg-extra.svg)](http://badge.fury.io/js/pg-extra) [![Dependency Status](https://david-dm.org/danneu/pg-extra.svg)](https://david-dm.org/danneu/pg-extra)
 
 
@@ -25,15 +23,6 @@ Useful extensions to the node-postgres pool and client.
 ## Install
 
     npm install --save pg-extra pg
-
-## Experimental
-
-Since this is experimental, I'm not going to bother compiling it with Babel
-until I'm happy with it.
-
-Until then, it only support Node v7.x with the flag:
-
-    node --harmony-async-await
 
 ## Usage
 

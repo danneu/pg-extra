@@ -2,19 +2,33 @@
   "name": "pg-extra",
   "description": "helpful extensions for node-postgres",
   "version": "0.0.1",
-  "main": "src/index.js",
+  "main": "dist/index.js",
+  "files": [
+    "dist/"
+  ],
   "scripts": {
-    "test": "node --harmony-async-await node_modules/.bin/ava"
+    "clean": "rimraf dist",
+    "watch": "watch 'npm run build' src test",
+    "build": "babel --optional runtime src -d dist",
+    "prepublish": "npm run build -s",
+    "deploy": "git pull --rebase origin master && git push origin master",
+    "test": "node --harmony-async-await node_modules/.bin/ava",
+    "patch": "npm version patch && npm publish",
+    "minor": "npm version minor && npm publish",
+    "major": "npm version major && npm publish",
+    "postpublish": "git push origin master --follow-tags"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/danneu/pg-extra.git"
   },
   "author": "Dan Neumann <danrodneu@gmail.com> (https://github.com/danneu)",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "ava": "^0.16.0",
+    "babel-cli": "^6.18.0",
+    "babel-plugin-transform-async-to-generator": "^6.16.0",
+    "babel-plugin-transform-runtime": "^6.15.0",
     "pg": "^6.1.0"
   },
   "license": "MIT"

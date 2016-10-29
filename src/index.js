@@ -14,7 +14,7 @@ function parseUrl (url) {
     user,
     password,
     host: params.hostname,
-    port: params.port,
+    port: params.port || 5432,
     database: database
   }
 }
