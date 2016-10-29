@@ -1,7 +1,7 @@
 
 const test = require('ava')
 
-const q = require('../src/q')
+const q = require('../dist/q')
 
 
 test('works', (t) => {

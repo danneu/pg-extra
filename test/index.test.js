@@ -1,7 +1,7 @@
 
 const test = require('ava')
 
-const {extend, parseUrl, q} = require('../src')
+const {extend, parseUrl, q} = require('../dist')
 const pg = extend(require('pg'))
 
 const pool = new pg.Pool(parseUrl('postgres://localhost:5432/pg_extra_test'))
