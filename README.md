@@ -114,8 +114,8 @@ Setup local postgres database with seeded rows that the tests expect:
 
     $ createdb pg_extra_test
     $ psql pg_extra_test
-    create table bars (n int not null);
-    insert into bars (n) values (1), (2), (3);
+    $ psql -d pg_extra_test -c 'create table bars (n int not null);'
+    $ psql -d pg_extra_test -c 'insert into bars (n) values (1), (2), (3);'
 
 Then run the tests:
 
