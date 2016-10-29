@@ -133,8 +133,8 @@ a possible sql injection vulnerability.
 
 Setup local postgres database with seeded rows that the tests expect:
 
-    createdb pg_extra_test
-    psql pg_extra_test
+    $ createdb pg_extra_test
+    $ psql pg_extra_test
     create table bars (n int not null);
     insert into bars (n) values (1), (2), (3);
 

@@ -7,5 +7,5 @@ addons:
   postgresql: "9.4"
 before_script:
   - psql -c 'create database pg_extra_test;' -U postgres
-  - psql -c 'create table bars (n int not null);' -U postgres
-  - psql -c 'insert into bars (n) values (1), (2), (3);' -U postgres
+  - psql -d pg_extra_test -c 'create table bars (n int not null);' -U postgres
+  - psql -d pg_extra_test -c 'insert into bars (n) values (1), (2), (3);' -U postgres
