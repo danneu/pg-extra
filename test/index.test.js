@@ -5,7 +5,7 @@ const {pg, parseUrl, q} = require('../src')(require('pg'))
 
 // Q TAG DISABLED
 
-const pool = new pg.Pool(parseUrl('postgres://localhost:5432/pg-extra-test'))
+const pool = new pg.Pool(parseUrl('postgres://localhost:5432/pg_extra_test'))
 
 
 test('query() works', async (t) => {

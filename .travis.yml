@@ -1,3 +1,9 @@
 language: node_js
 node_js:
   - "7"
+services:
+  - postgresql
+before_script:
+  - psql -c 'create database pg_extra_test;' -U postgres
+  - psql -c 'create table bars (n int not null);' -U postgres
+  - psql -c 'insert into bars (n) values (1), (2), (3);' -U postgres

@@ -5,7 +5,7 @@ const {pg, parseUrl, q} = require('../src')(require('pg'), { q: true })
 
 // Q TAG DISABLED
 
-const pool = new pg.Pool(parseUrl('postgres://localhost:5432/pg-extra-test'))
+const pool = new pg.Pool(parseUrl('postgres://localhost:5432/pg_extra_test'))
 
 test('query() works', async (t) => {
   const result = await pool.query(q`SELECT * FROM bars WHERE n = ANY (${[1,3]}) ORDER BY n`)
