@@ -77,10 +77,10 @@ exports.transferBalance = async function (from, to, amount) {
 
 ### With the `q` helper
 
-- `pool.many(...q``sql``)`: Resolves an array of rows.
-- `pool.one(...q``sql``)`: Resolves one row or null.
-- `client.many(...q``sql``)`: Resolves an array of rows.
-- `client.one(...q``sql``)`: Resolves one row or null.
+- ``pool.many(...q`sql`)``: Resolves an array of rows.
+- ``pool.one(...q`sql`)``: Resolves one row or null.
+- ``client.many(...q`sql`)``: Resolves an array of rows.
+- ``client.one(...q`sql`)``: Resolves one row or null.
 
 ### The `q` query template tag
 
