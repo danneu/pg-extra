@@ -3,6 +3,8 @@ node_js:
   - "7"
 services:
   - postgresql
+addons:
+  postgresql: "9.4"
 before_script:
   - psql -c 'create database pg_extra_test;' -U postgres
   - psql -c 'create table bars (n int not null);' -U postgres
