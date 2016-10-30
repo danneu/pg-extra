@@ -5,12 +5,16 @@ const q = require('../dist/q')
 
 
 test('works', (t) => {
-  t.deepEqual(q`SELECT 1`, { text: 'SELECT 1', values: [] })
+  t.deepEqual(q`SELECT 1`, { text: 'SELECT 1', values: [], _q: true })
 })
 
 
 test('interpolates one binding', (t) => {
-  t.deepEqual(q`SELECT ${42}::int`, { text: 'SELECT $1::int', values: [42] })
+  t.deepEqual(q`SELECT ${42}::int`, {
+    text: 'SELECT $1::int',
+    values: [42],
+    _q: true
+  })
 })
 
 

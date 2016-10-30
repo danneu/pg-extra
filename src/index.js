@@ -3,6 +3,8 @@ const {parse} = require('url')
 // 1st
 const q = require('./q')
 
+// =========================================================
+
 function parseUrl (url) {
   const params = parse(url)
   let user, password
@@ -19,6 +21,21 @@ function parseUrl (url) {
   }
 }
 
+// =========================================================
+
+function query ({text, values, _q} = {}, _, cb) {
+  // if callback is given, node-postgres is calling this
+  // so pass it to the original query.
+  if (typeof cb === 'function') {
+    return this._query.apply(this, arguments)
+  }
+  // else we're calling it
+  if (!_q) {
+    return Promise.reject(new Error('must build query with q'))
+  }
+  return this._query({text, values})
+}
+
 async function many (sql, params) {
   const result = await this.query(sql, params)
   return result.rows
@@ -30,6 +47,10 @@ async function one (sql, params) {
     console.warn('one() returned more than one row')
   }
   return result.rows[0]
+}
+
+function prepared (name) {
+  return new Prepared(name, this.query.bind(this))
 }
 
 async function withTransaction (runner) {
@@ -77,12 +98,37 @@ async function withTransaction (runner) {
   return result
 }
 
+// =========================================================
+
+function Prepared (name, onQuery) {
+  this.name = name
+  this.onQuery = onQuery
+}
+
+Prepared.prototype.many = many
+
+Prepared.prototype.one = one
+
+Prepared.prototype.query = async function ({text, values, _q} = {}) {
+  if (!_q) {
+    throw new Error('must build query with q')
+  }
+  return this.onQuery({name: this.name, text, values, _q})
+}
+
+// =========================================================
+
 
 function extend (pg) {
-  pg.Client.prototype.many = many
-  pg.Client.prototype.one = one
-  pg.Pool.prototype.many = many
-  pg.Pool.prototype.one = one
+  // Save original query() methods
+  pg.Client.prototype._query = pg.Client.prototype.query
+  pg.Pool.prototype._query = pg.Pool.prototype.query
+  // Client + Pool
+  pg.Client.prototype.query = pg.Pool.prototype.query = query
+  pg.Client.prototype.many = pg.Pool.prototype.many = many
+  pg.Client.prototype.one = pg.Pool.prototype.one = one
+  pg.Client.prototype.prepared = pg.Pool.prototype.prepared = prepared
+  // Pool only
   pg.Pool.prototype.withTransaction = withTransaction
   // Parse int8 into Javascript integer
   pg.types.setTypeParser(20, (val) => {

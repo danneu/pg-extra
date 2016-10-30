@@ -21,30 +21,14 @@ async function withClient (runner) {
 
 // WITHOUT Q
 
-test('client.many() works with regular bindings', async (t) => {
-  await withClient(async (client) => {
-    const rows = await client.many('SELECT * FROM bars WHERE n = ANY ($1) ORDER BY n', [[1,3]])
-    t.deepEqual(rows, [{n:1},{n:3}])
+test('pool.query() requires q-built query', async (t) => {
+  t.throws(pool.query('SELECT 1'), /with q/)
+})
+
+test('client.query() requires q-built query', async (t) => {
+  await withClient((client) => {
+    t.throws(client.query('SELECT 1'), /with q/)
   })
-})
-
-
-test('pool.many() works with regular bindings', async (t) => {
-  const rows = await pool.many('SELECT * FROM bars WHERE n = ANY ($1) ORDER BY n', [[1,3]])
-  t.deepEqual(rows, [{n:1},{n:3}])
-})
-
-test('client.one() works with regular bindings', async (t) => {
-  await withClient(async (client) => {
-    const row = await client.one('SELECT * FROM bars WHERE n = $1', [2])
-    t.deepEqual(row, {n:2})
-  })
-})
-
-
-test('pool.one() works with regular bindings', async (t) => {
-  const row = await pool.one('SELECT * FROM bars WHERE n = $1', [2])
-  t.deepEqual(row, {n:2})
 })
 
 // WITH Q
@@ -88,13 +72,35 @@ test('pool.one() works with q', async (t) => {
 // PARSING
 
 test('parses int8 into Javascript integer', async (t) => {
-  const {n} = await pool.one('SELECT 123::int8 n')
+  const {n} = await pool.one(q`SELECT 123::int8 n`)
   // this would be a string "123" without the setTypeParser(20) fix
   t.is(n, 123)
 })
 
 test('parses numerics into Javascript floats', async (t) => {
-  const {n} = await pool.one('SELECT 123::numeric n')
+  const {n} = await pool.one(q`SELECT 123::numeric n`)
   // this would be a string "123" without the setTypeParser(1700) fix
   t.is(n, 123)
+})
+
+
+// PREPARED
+
+test('prepared() requires q-tag', async (t) => {
+  const promise = pool.prepared('foo').many(`select * from bars where n = ${1}`)
+  t.throws(promise, /with q/)
+})
+
+
+test('pool.prepared().query() works', async (t) => {
+  const result = await pool.prepared('foo').query(q`select * from bars where n = ${1}`)
+  t.deepEqual(result.rows, [{n:1}])
+})
+test('pool.prepared().many() works', async (t) => {
+  const rows = await pool.prepared('foo').many(q`select * from bars where n = ${1}`)
+  t.deepEqual(rows, [{n:1}])
+})
+test('pool.prepared().one() works', async (t) => {
+  const row = await pool.prepared('foo').one(q`select * from bars where n = ${1}`)
+  t.deepEqual(row, {n:1})
 })

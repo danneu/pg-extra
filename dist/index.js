@@ -13,7 +13,7 @@ var _slicedToArray2 = require('babel-runtime/helpers/slicedToArray');
 var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
 
 var many = function () {
-  var _ref3 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee(sql, params) {
+  var _ref4 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee(sql, params) {
     var result;
     return _regenerator2.default.wrap(function _callee$(_context) {
       while (1) {
@@ -34,13 +34,13 @@ var many = function () {
     }, _callee, this);
   }));
 
-  return function many(_x, _x2) {
-    return _ref3.apply(this, arguments);
+  return function many(_x2, _x3) {
+    return _ref4.apply(this, arguments);
   };
 }();
 
 var one = function () {
-  var _ref4 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2(sql, params) {
+  var _ref5 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2(sql, params) {
     var result;
     return _regenerator2.default.wrap(function _callee2$(_context2) {
       while (1) {
@@ -65,15 +65,15 @@ var one = function () {
     }, _callee2, this);
   }));
 
-  return function one(_x3, _x4) {
-    return _ref4.apply(this, arguments);
+  return function one(_x4, _x5) {
+    return _ref5.apply(this, arguments);
   };
 }();
 
 var withTransaction = function () {
-  var _ref5 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee4(runner) {
+  var _ref6 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee4(runner) {
     var rollback = function () {
-      var _ref6 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee3(err) {
+      var _ref7 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee3(err) {
         return _regenerator2.default.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
@@ -123,8 +123,8 @@ var withTransaction = function () {
         }, _callee3, this, [[0, 5]]);
       }));
 
-      return function rollback(_x6) {
-        return _ref6.apply(this, arguments);
+      return function rollback(_x7) {
+        return _ref7.apply(this, arguments);
       };
     }();
 
@@ -195,10 +195,12 @@ var withTransaction = function () {
     }, _callee4, this, [[3, 8], [12, 18], [21, 26]]);
   }));
 
-  return function withTransaction(_x5) {
-    return _ref5.apply(this, arguments);
+  return function withTransaction(_x6) {
+    return _ref6.apply(this, arguments);
   };
 }();
+
+// =========================================================
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -208,6 +210,8 @@ var _require = require('url'),
 
 
 var q = require('./q');
+
+// =========================================================
 
 function parseUrl(url) {
   var params = parse(url);
@@ -236,11 +240,89 @@ function parseUrl(url) {
   };
 }
 
+// =========================================================
+
+function query() {
+  var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      text = _ref3.text,
+      values = _ref3.values,
+      _q = _ref3._q;
+
+  var _ = arguments[1];
+  var cb = arguments[2];
+
+  // if callback is given, node-postgres is calling this
+  // so pass it to the original query.
+  if (typeof cb === 'function') {
+    return this._query.apply(this, arguments);
+  }
+  // else we're calling it
+  if (!_q) {
+    return Promise.reject(new Error('must build query with q'));
+  }
+  return this._query({ text: text, values: values });
+}
+
+function prepared(name) {
+  return new Prepared(name, this.query.bind(this));
+}
+
+function Prepared(name, onQuery) {
+  this.name = name;
+  this.onQuery = onQuery;
+}
+
+Prepared.prototype.many = many;
+
+Prepared.prototype.one = one;
+
+Prepared.prototype.query = function () {
+  var _ref8 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee5() {
+    var _ref9 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        text = _ref9.text,
+        values = _ref9.values,
+        _q = _ref9._q;
+
+    return _regenerator2.default.wrap(function _callee5$(_context5) {
+      while (1) {
+        switch (_context5.prev = _context5.next) {
+          case 0:
+            if (_q) {
+              _context5.next = 2;
+              break;
+            }
+
+            throw new Error('must build query with q');
+
+          case 2:
+            return _context5.abrupt('return', this.onQuery({ name: this.name, text: text, values: values, _q: _q }));
+
+          case 3:
+          case 'end':
+            return _context5.stop();
+        }
+      }
+    }, _callee5, this);
+  }));
+
+  return function (_x8) {
+    return _ref8.apply(this, arguments);
+  };
+}();
+
+// =========================================================
+
+
 function extend(pg) {
-  pg.Client.prototype.many = many;
-  pg.Client.prototype.one = one;
-  pg.Pool.prototype.many = many;
-  pg.Pool.prototype.one = one;
+  // Save original query() methods
+  pg.Client.prototype._query = pg.Client.prototype.query;
+  pg.Pool.prototype._query = pg.Pool.prototype.query;
+  // Client + Pool
+  pg.Client.prototype.query = pg.Pool.prototype.query = query;
+  pg.Client.prototype.many = pg.Pool.prototype.many = many;
+  pg.Client.prototype.one = pg.Pool.prototype.one = one;
+  pg.Client.prototype.prepared = pg.Pool.prototype.prepared = prepared;
+  // Pool only
   pg.Pool.prototype.withTransaction = withTransaction;
   // Parse int8 into Javascript integer
   pg.types.setTypeParser(20, function (val) {

@@ -6,6 +6,7 @@ module.exports = function q(strings) {
   }
 
   return {
+    _q: true,
     text: strings.reduce(function (prev, chunk, i) {
       return prev + '$' + i + chunk;
     }),
