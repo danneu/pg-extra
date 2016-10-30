@@ -19,6 +19,15 @@ function parseUrl (url) {
   }
 }
 
+function ensureSpread (fn) {
+  return async function (sql, params) {
+    if (Array.isArray(sql)) {
+      throw new Error('sql was an array. did you mean to ...spread the q tag?')
+    }
+    return fn.call(this, sql, params)
+  }
+}
+
 async function many (sql, params) {
   const result = await this.query(sql, params)
   return result.rows
@@ -78,12 +87,17 @@ async function withTransaction (runner) {
 }
 
 
+// TODO: We should only have to ensureSpread() the client.query
+// since it's used by everything else. But I can't seem to get it
+// to work.
 function extend (pg) {
-  pg.Pool.prototype.many = many
-  pg.Pool.prototype.one = one
+  // TODO: pg.Client.prototype.query = ensureSpread(pg.Client.prototype.query)
+  pg.Client.prototype.many = ensureSpread(many)
+  pg.Client.prototype.one = ensureSpread(one)
+  pg.Pool.prototype.query = ensureSpread(pg.Pool.prototype.query)
+  pg.Pool.prototype.many = ensureSpread(many)
+  pg.Pool.prototype.one = ensureSpread(one)
   pg.Pool.prototype.withTransaction = withTransaction
-  pg.Client.prototype.many = many
-  pg.Client.prototype.one = one
   return pg
 }
 
