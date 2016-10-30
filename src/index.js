@@ -58,7 +58,7 @@ async function withTransaction (runner) {
 
   async function rollback (err) {
     try {
-      await client.query('ROLLBACK')
+      await client._query('ROLLBACK')
     } catch (err) {
       console.log('Could not rollback transaction, removing from pool')
       client.release(err)
@@ -75,7 +75,7 @@ async function withTransaction (runner) {
   }
 
   try {
-    await client.query('BEGIN')
+    await client._query('BEGIN')
   } catch (err) {
     return rollback(err)
   }
@@ -88,7 +88,7 @@ async function withTransaction (runner) {
   }
 
   try {
-    await client.query('COMMIT')
+    await client._query('COMMIT')
   } catch (err) {
     return rollback(err)
   }
