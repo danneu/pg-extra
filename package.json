@@ -1,7 +1,7 @@
 {
   "name": "pg-extra",
   "description": "helpful extensions for node-postgres",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "main": "dist/index.js",
   "files": [
     "dist/"
