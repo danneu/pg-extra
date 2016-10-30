@@ -8,6 +8,8 @@ Useful extensions to the node-postgres pool and client.
 - Extends pg.Client with prototype methods `many`, `one`.
 - The above methods all return promises just like
   the existing `pool.query()` and `client.query()`.
+- Configures the client parser to parse postgres ints and numerics 
+  into javascript numbers (else `SELECT 1::int8` would return a string "1").
 - `parseUrl` converts a postgres connection string into the object
   that pg.Pool expects.
 - Exposes a `q` template literal helper for writing queries.

@@ -280,6 +280,14 @@ function extend(pg) {
   pg.Pool.prototype.many = ensureSpread(many);
   pg.Pool.prototype.one = ensureSpread(one);
   pg.Pool.prototype.withTransaction = withTransaction;
+  // Parse int8 into Javascript integer
+  pg.types.setTypeParser(20, function (val) {
+    return val === null ? null : Number.parseInt(val, 10);
+  });
+  // Parse numerics into floats
+  pg.types.setTypeParser(1700, function (val) {
+    return val === null ? null : Number.parseFloat(val);
+  });
   return pg;
 }
 

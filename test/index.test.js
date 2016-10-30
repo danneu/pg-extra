@@ -126,3 +126,18 @@ test('pool.one() complains if you forget to spread q', (t) => {
   const promise = pool.one(q`SELECT * FROM bars WHERE n = ANY (${[1,3]}) LIMIT 1`)
   t.throws(promise, /sql was an array/)
 })
+
+// PARSING
+
+test('parses int8 into Javascript integer', async (t) => {
+  const {n} = await pool.one('SELECT 123::int8 n')
+  // this would be a string "123" without the setTypeParser(20) fix
+  t.is(n, 123)
+})
+
+test('parses numerics into Javascript floats', async (t) => {
+  const {n} = await pool.one('SELECT 123::numeric n')
+  // this would be a string "123" without the setTypeParser(1700) fix
+  t.is(n, 123)
+})
+
