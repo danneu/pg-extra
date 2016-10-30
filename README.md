@@ -1,8 +1,7 @@
 
 # pg-extra [![Build Status](https://travis-ci.org/danneu/pg-extra.svg?branch=master)](https://travis-ci.org/danneu/pg-extra) [![NPM version](https://badge.fury.io/js/pg-extra.svg)](http://badge.fury.io/js/pg-extra) [![Dependency Status](https://david-dm.org/danneu/pg-extra.svg)](https://david-dm.org/danneu/pg-extra)
 
-
-Useful extensions to the node-postgres pool and client.
+A simple set of extensions and helpers for node-postgres.
 
 - Extends pg.Pool with prototype methods `many`, `one`, `withTransaction`.
 - Extends pg.Client with prototype methods `many`, `one`.
@@ -83,6 +82,10 @@ exports.transferBalance = async function (from, to, amount) {
 - ``{pool,client}.prepared('funcName').query(q`sql`)``
 - ``{pool,client}.prepared('funcName').many(q`sql`)``
 - ``{pool,client}.prepared('funcName').one(q`sql`)``
+- `{pool,client}._query(sql, [params], [cb])`: The original .query() method.
+  Useful when you want to bypass the `q` requirement, like when
+  executing sql files.
+
 
 ### The `q` query template tag
 

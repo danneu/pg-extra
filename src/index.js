@@ -60,8 +60,9 @@ async function withTransaction (runner) {
     try {
       await client._query('ROLLBACK')
     } catch (err) {
-      console.log('Could not rollback transaction, removing from pool')
+      console.warn('Could not rollback transaction, removing from pool')
       client.release(err)
+      err.rolledback = false
       throw err
     }
     client.release()

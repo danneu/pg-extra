@@ -83,40 +83,41 @@ var withTransaction = function () {
                 return client._query('ROLLBACK');
 
               case 3:
-                _context3.next = 10;
+                _context3.next = 11;
                 break;
 
               case 5:
                 _context3.prev = 5;
                 _context3.t0 = _context3['catch'](0);
 
-                console.log('Could not rollback transaction, removing from pool');
+                console.warn('Could not rollback transaction, removing from pool');
                 client.release(_context3.t0);
+                _context3.t0.rolledback = false;
                 throw _context3.t0;
 
-              case 10:
+              case 11:
                 client.release();
 
                 if (!(err.code === '40P01')) {
-                  _context3.next = 15;
+                  _context3.next = 16;
                   break;
                 }
 
                 return _context3.abrupt('return', withTransaction(runner));
 
-              case 15:
+              case 16:
                 if (!(err.code === '40001')) {
-                  _context3.next = 17;
+                  _context3.next = 18;
                   break;
                 }
 
                 return _context3.abrupt('return', withTransaction(runner));
 
-              case 17:
+              case 18:
                 err.rolledback = true;
                 throw err;
 
-              case 19:
+              case 20:
               case 'end':
                 return _context3.stop();
             }

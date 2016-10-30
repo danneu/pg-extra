@@ -35,38 +35,38 @@ test('client.query() requires q-built query', async (t) => {
 
 test('client.query() works with q', async (t) => {
   await withClient(async (client) => {
-    const result = await client.query(q`SELECT * FROM bars WHERE n = ANY (${[1,3]}) ORDER BY n`)
-    t.deepEqual(result.rows, [{n:1},{n:3}])
+    const result = await client.query(q`SELECT * FROM bars WHERE n = ANY (${[1, 3]}) ORDER BY n`)
+    t.deepEqual(result.rows, [{n: 1}, {n: 3}])
   })
 })
 
 test('pool.query() works with q', async (t) => {
-  const result = await pool.query(q`SELECT * FROM bars WHERE n = ANY (${[1,3]}) ORDER BY n`)
-  t.deepEqual(result.rows, [{n:1},{n:3}])
+  const result = await pool.query(q`SELECT * FROM bars WHERE n = ANY (${[1, 3]}) ORDER BY n`)
+  t.deepEqual(result.rows, [{n: 1}, {n: 3}])
 })
 
 test('client.many() works with q', async (t) => {
   await withClient(async (client) => {
-    const rows = await client.many(q`SELECT * FROM bars WHERE n = ANY (${[1,3]})`)
-    t.deepEqual(rows, [{n:1},{n:3}])
+    const rows = await client.many(q`SELECT * FROM bars WHERE n = ANY (${[1, 3]})`)
+    t.deepEqual(rows, [{n: 1}, {n: 3}])
   })
 })
 
 test('pool.many() works with q', async (t) => {
-  const rows = await pool.many(q`SELECT * FROM bars WHERE n = ANY (${[1,3]})`)
-  t.deepEqual(rows, [{n:1},{n:3}])
+  const rows = await pool.many(q`SELECT * FROM bars WHERE n = ANY (${[1, 3]})`)
+  t.deepEqual(rows, [{n: 1}, {n: 3}])
 })
 
 test('client.one() works with q', async (t) => {
   await withClient(async (client) => {
     const row = await client.one(q`SELECT * FROM bars WHERE n = ${2}`)
-    t.deepEqual(row, {n:2})
+    t.deepEqual(row, {n: 2})
   })
 })
 
 test('pool.one() works with q', async (t) => {
   const row = await pool.one(q`SELECT * FROM bars WHERE n = ${2}`)
-  t.deepEqual(row, {n:2})
+  t.deepEqual(row, {n: 2})
 })
 
 // PARSING
@@ -94,15 +94,15 @@ test('prepared() requires q-tag', async (t) => {
 
 test('pool.prepared().query() works', async (t) => {
   const result = await pool.prepared('foo').query(q`select * from bars where n = ${1}`)
-  t.deepEqual(result.rows, [{n:1}])
+  t.deepEqual(result.rows, [{n: 1}])
 })
 test('pool.prepared().many() works', async (t) => {
   const rows = await pool.prepared('foo').many(q`select * from bars where n = ${1}`)
-  t.deepEqual(rows, [{n:1}])
+  t.deepEqual(rows, [{n: 1}])
 })
 test('pool.prepared().one() works', async (t) => {
   const row = await pool.prepared('foo').one(q`select * from bars where n = ${1}`)
-  t.deepEqual(row, {n:1})
+  t.deepEqual(row, {n: 1})
 })
 
 
@@ -117,7 +117,7 @@ test('withTransaction sanity check', async (t) => {
 
 test('withTransaction can successfully rollback', async (t) => {
   try {
-    await pool.withTransaction(async (client) => {
+    await pool.withTransaction(async () => {
       throw new Error('fake error')
     })
   } catch (err) {
