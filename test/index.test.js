@@ -104,3 +104,24 @@ test('pool.prepared().one() works', async (t) => {
   const row = await pool.prepared('foo').one(q`select * from bars where n = ${1}`)
   t.deepEqual(row, {n:1})
 })
+
+
+// TRANSACTION
+
+test('withTransaction sanity check', async (t) => {
+  await pool.withTransaction(async (client) => {
+    const {n} = await client.one(q`SELECT 1 n`)
+    t.is(n, 1)
+  })
+})
+
+test('withTransaction can successfully rollback', async (t) => {
+  try {
+    await pool.withTransaction(async (client) => {
+      throw new Error('fake error')
+    })
+  } catch (err) {
+    return t.true(err.rolledback)
+  }
+  t.fail()
+})

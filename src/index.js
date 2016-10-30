@@ -71,6 +71,7 @@ async function withTransaction (runner) {
     } else if (err.code === '40001') { // Serialization error
       return withTransaction(runner)
     }
+    err.rolledback = true
     throw err
   }
 

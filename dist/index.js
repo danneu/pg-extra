@@ -80,7 +80,7 @@ var withTransaction = function () {
               case 0:
                 _context3.prev = 0;
                 _context3.next = 3;
-                return client.query('ROLLBACK');
+                return client._query('ROLLBACK');
 
               case 3:
                 _context3.next = 10;
@@ -113,9 +113,10 @@ var withTransaction = function () {
                 return _context3.abrupt('return', withTransaction(runner));
 
               case 17:
+                err.rolledback = true;
                 throw err;
 
-              case 18:
+              case 19:
               case 'end':
                 return _context3.stop();
             }
@@ -140,7 +141,7 @@ var withTransaction = function () {
             client = _context4.sent;
             _context4.prev = 3;
             _context4.next = 6;
-            return client.query('BEGIN');
+            return client._query('BEGIN');
 
           case 6:
             _context4.next = 11;
@@ -170,7 +171,7 @@ var withTransaction = function () {
           case 21:
             _context4.prev = 21;
             _context4.next = 24;
-            return client.query('COMMIT');
+            return client._query('COMMIT');
 
           case 24:
             _context4.next = 29;
