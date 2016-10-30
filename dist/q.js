@@ -5,9 +5,10 @@ module.exports = function q(strings) {
     values[_key - 1] = arguments[_key];
   }
 
-  var query = '';
-  strings.forEach(function (string, i) {
-    query += string + (i < values.length ? '$' + (i + 1) : '');
-  });
-  return [query, values];
+  return {
+    text: strings.reduce(function (prev, chunk, i) {
+      return prev + '$' + i + chunk;
+    }),
+    values: values
+  };
 };

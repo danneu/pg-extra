@@ -5,29 +5,29 @@ const q = require('../dist/q')
 
 
 test('works', (t) => {
-  t.deepEqual(q`SELECT 1`, ['SELECT 1', []])
+  t.deepEqual(q`SELECT 1`, { text: 'SELECT 1', values: [] })
 })
 
 
 test('interpolates one binding', (t) => {
-  t.deepEqual(q`SELECT ${42}::int`, ['SELECT $1::int', [42]])
+  t.deepEqual(q`SELECT ${42}::int`, { text: 'SELECT $1::int', values: [42] })
 })
 
 
 test('interpolates multiple bindings', (t) => {
-  const [query, params] = q`
+  const {text, values} = q`
      SELECT *
      FROM users
      WHERE lower(uname) = lower(${'foo'})
        AND num = ANY (${[1, 2, 3]})
    `
 
-  t.is(query, `
+  t.is(text, `
      SELECT *
      FROM users
      WHERE lower(uname) = lower($1)
        AND num = ANY ($2)
    `)
 
-  t.deepEqual(params, ['foo', [1, 2, 3]])
+  t.deepEqual(values, ['foo', [1, 2, 3]])
 })
