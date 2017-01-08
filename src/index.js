@@ -1,7 +1,7 @@
 
 const {parse} = require('url')
 // 1st
-const q = require('./q')
+const SqlStatement = require('./SqlStatement')
 
 // =========================================================
 
@@ -23,17 +23,17 @@ function parseUrl (url) {
 
 // =========================================================
 
-function query ({text, values, _q} = {}, _, cb) {
+function query (statement, _, cb) {
   // if callback is given, node-postgres is calling this
   // so pass it to the original query.
   if (typeof cb === 'function') {
     return this._query.apply(this, arguments)
   }
   // else we're calling it
-  if (!_q) {
-    return Promise.reject(new Error('must build query with q'))
+  if (!(statement instanceof SqlStatement)) {
+    return Promise.reject(new Error('must build query with sql or __raw'))
   }
-  return this._query({text, values})
+  return this._query(statement)
 }
 
 async function many (sql, params) {
@@ -111,11 +111,11 @@ Prepared.prototype.many = many
 
 Prepared.prototype.one = one
 
-Prepared.prototype.query = async function ({text, values, _q} = {}) {
-  if (!_q) {
-    throw new Error('must build query with q')
+Prepared.prototype.query = async function (statement) {
+  if (!(statement instanceof SqlStatement)) {
+    throw new Error('must build query with sql or __raw')
   }
-  return this.onQuery({name: this.name, text, values, _q})
+  return this.onQuery(statement.named(this.name))
 }
 
 // =========================================================
@@ -148,5 +148,10 @@ function extend (pg) {
 
 
 module.exports = {
-  extend, q, parseUrl
+  extend,
+  parseUrl,
+  sql: SqlStatement.sql,
+  // Deprecated, was renamed to `sql`
+  q: SqlStatement.sql,
+  _unsafe: SqlStatement._unsafe
 }
