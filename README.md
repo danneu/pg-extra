@@ -78,15 +78,15 @@ exports.transferBalance = async function (from, to, amount) {
 
 ## Extensions
 
-- ``pool.query(sql`sql`)``: Resolves a postgres Result.
-- ``pool.many(sql`sql`)``: Resolves an array of rows.
-- ``pool.one(sql`sql`)``: Resolves one row or null.
-- ``client.query(sql`sql`)``: Resolves a postgres Result.
-- ``client.many(sql`sql`)``: Resolves an array of rows.
-- ``client.one(sql`sql`)``: Resolves one row or null.
-- ``{pool,client}.prepared('funcName').query(sql`sql`)``
-- ``{pool,client}.prepared('funcName').many(sql`sql`)``
-- ``{pool,client}.prepared('funcName').one(sql`sql`)``
+- ``pool.query(sql`string`)``: Resolves a postgres Result.
+- ``pool.many(sql`string`)``: Resolves an array of rows.
+- ``pool.one(sql`string`)``: Resolves one row or null.
+- ``client.query(sql`string`)``: Resolves a postgres Result.
+- ``client.many(sql`string`)``: Resolves an array of rows.
+- ``client.one(sql`string`)``: Resolves one row or null.
+- ``{pool,client}.prepared('funcName').query(sql`string`)``
+- ``{pool,client}.prepared('funcName').many(sql`string`)``
+- ``{pool,client}.prepared('funcName').one(sql`string`)``
 - `{pool,client}._query(sql, [params], [cb])`: The original .query() method.
   Useful when you want to bypass the `sql`/`_unsafe` requirement, like when
   executing sql files.
