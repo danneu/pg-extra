@@ -3,7 +3,7 @@ Requires Node v7.x.
 
 # pg-extra [![Build Status](https://travis-ci.org/danneu/pg-extra.svg?branch=master)](https://travis-ci.org/danneu/pg-extra) [![NPM version](https://badge.fury.io/js/pg-extra.svg)](http://badge.fury.io/js/pg-extra) [![Dependency Status](https://david-dm.org/danneu/pg-extra.svg)](https://david-dm.org/danneu/pg-extra)
 
-A simple set of extensions and helpers for node-postgres.
+A simple set of extensions and helpers for [node-postgres][node-postgres].
 
 ## Quick Overview
 
@@ -159,6 +159,10 @@ I recommend using a SQL-generator like [knex][knex]:
 
 ```javascript
 const knex = require('knex')
+const {extend, parseUrl} = require('pg-extra')
+const pg = extend(require('pg'))
+
+const pool = new pg.Pool(parseUrl('postgres://user:pass@localhost:5432/my-db'))
 
 // `usernames` will look like ['jack', 'jill', 'john']
 exports.insertUsers = function (usernames) {
@@ -166,16 +170,14 @@ exports.insertUsers = function (usernames) {
         // we want to pass [{ username: 'jack' }, { username: 'john' }, ...]
         // to the .insert() function, which is a mapping of column names
         // to values.
-        .insert(usernames.map((u) => ({ username: u.uname })))
+        .insert(usernames.map((username) => ({ username })))
         .toString()
-    return client._query(sqlString)
+    return pool._query(sqlString)
 }
 ```
 
 **Note**: Since knex gives you the full, escaped, safe query string to execute,
 use `_query(string)` to circumvent pg-extra.
-
-[knex]: http://knexjs.org/
 
 ## Test
 
@@ -193,3 +195,6 @@ Then run the tests:
 ## TODO
 
 - Add `withTransaction` to `pg.Client`.
+
+[node-postgres]: https://github.com/brianc/node-postgres
+[knex]: http://knexjs.org/
