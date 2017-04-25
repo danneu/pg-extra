@@ -1,8 +1,7 @@
 
 const test = require('ava')
-const {extend, parseUrl, sql, _unsafe} = require('../dist')
+const {extend, parseUrl, sql, _raw} = require('../src')
 const pg = extend(require('pg'))
-
 
 const url = 'postgres://localhost:5432/pg_extra_test'
 
@@ -17,7 +16,6 @@ async function withClient (runner) {
     await client.end()
   }
 }
-
 
 // WITHOUT TAG
 
@@ -43,9 +41,9 @@ test('client.query() works with sql tag', async (t) => {
     t.deepEqual(result.rows, [{n: 1}, {n: 3}])
   })
 })
-test('client.query() works with _unsafe tag', async (t) => {
+test('client.query() works with _raw tag', async (t) => {
   await withClient(async (client) => {
-    const result = await client.query(_unsafe`SELECT * FROM bars WHERE n IN (${1}, ${3}) ORDER BY n ${'desc'}`)
+    const result = await client.query(_raw`SELECT * FROM bars WHERE n IN (${1}, ${3}) ORDER BY n ${'desc'}`)
     t.deepEqual(result.rows, [{n: 3}, {n: 1}])
   })
 })
@@ -79,7 +77,6 @@ test('pool.one() works with sql tag', async (t) => {
   t.deepEqual(row, {n: 2})
 })
 
-
 // PARSING
 
 test('parses int8 into Javascript integer', async (t) => {
@@ -94,14 +91,12 @@ test('parses numerics into Javascript floats', async (t) => {
   t.is(n, 123)
 })
 
-
 // PREPARED
 
 test('prepared() requires tag', async (t) => {
   const promise = pool.prepared('foo').many(`select * from bars where n = ${1}`)
   t.throws(promise, /must build/)
 })
-
 
 test('pool.prepared().query() works', async (t) => {
   const result = await pool.prepared('foo').query(sql`select * from bars where n = ${1}`)
@@ -115,7 +110,6 @@ test('pool.prepared().one() works', async (t) => {
   const row = await pool.prepared('foo').one(sql`select * from bars where n = ${1}`)
   t.deepEqual(row, {n: 1})
 })
-
 
 // TRANSACTION
 

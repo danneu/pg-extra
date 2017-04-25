@@ -11,7 +11,7 @@ function parseUrl (url) {
   if (params.auth) {
     [user, password] = params.auth.split(':')
   }
-  const [_, database] = params.pathname.match(/\/(.+)$/) || []
+  const [, database] = params.pathname.match(/\/(.+)$/) || []
   return {
     user,
     password,
@@ -120,7 +120,6 @@ Prepared.prototype.query = async function (statement) {
 
 // =========================================================
 
-
 function extend (pg) {
   // Save original query() methods
   pg.Client.prototype._query = pg.Client.prototype.query
@@ -143,15 +142,13 @@ function extend (pg) {
   return pg
 }
 
-
 // API
-
 
 module.exports = {
   extend,
   parseUrl,
+  q: SqlStatement.sql, // deprecated in favor of `sql`
   sql: SqlStatement.sql,
-  // Deprecated, was renamed to `sql`
-  q: SqlStatement.sql,
-  _unsafe: SqlStatement._unsafe
+  _unsafe: SqlStatement._unsafe, // deprecated in favor of `_raw`
+  _raw: SqlStatement._raw
 }

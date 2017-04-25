@@ -1,4 +1,6 @@
 
+Requires Node v7.x.
+
 # pg-extra [![Build Status](https://travis-ci.org/danneu/pg-extra.svg?branch=master)](https://travis-ci.org/danneu/pg-extra) [![NPM version](https://badge.fury.io/js/pg-extra.svg)](http://badge.fury.io/js/pg-extra) [![Dependency Status](https://david-dm.org/danneu/pg-extra.svg)](https://david-dm.org/danneu/pg-extra)
 
 A simple set of extensions and helpers for node-postgres.
@@ -14,7 +16,7 @@ A simple set of extensions and helpers for node-postgres.
   into javascript numbers (else `SELECT 1::int8` would return a string "1").
 - `parseUrl` converts a postgres connection string into the object
   that pg.Pool expects.
-- Exposes `sql` and `_unsafe` template literal helpers for writing queries.
+- Exposes `sql` and `_raw` template literal helpers for writing queries.
 
     ``` javascript
     const uname = 'nisha42'
@@ -25,12 +27,12 @@ A simple set of extensions and helpers for node-postgres.
       SELECT *
       FROM users
       WHERE lower(uname) = lower(${uname})
-    `.append(_unsafe`ORDER BY ${key} ${direction}`))
+    `.append(_raw`ORDER BY ${key} ${direction}`))
     ```
 - All query methods fail if the query you pass in is not built with the
-  `sql` or `_unsafe` tag. This avoids the issue of accidentally introducing
+  `sql` or `_raw` tag. This avoids the issue of accidentally introducing
   sql injection with template literals. If you want normal template literal
-  behavior (dumb interpolation), you must tag it with `_unsafe`.
+  behavior (dumb interpolation), you must tag it with `_raw`.
 
 ## Install
 
@@ -39,7 +41,7 @@ A simple set of extensions and helpers for node-postgres.
 ## Usage / Example
 
 ``` javascript
-const {extend, sql, _unsafe, parseUrl} = require('pg-extra')
+const {extend, sql, _raw, parseUrl} = require('pg-extra')
 const pg = extend(require('pg'))
 
 const url = 'postgres://user:pass@localhost:5432/my-db'
@@ -61,7 +63,7 @@ exports.listUsersInCities = async function (cities, direction = 'DESC') {
     SELECT *
     FROM users
     WHERE city = ANY (${cities})
-  `.append(_unsafe`ORDER BY uname ${direction}`))
+  `.append(_raw`ORDER BY uname ${direction}`))
 }
 
 exports.transferBalance = async function (from, to, amount) {
@@ -88,13 +90,13 @@ exports.transferBalance = async function (from, to, amount) {
 - ``{pool,client}.prepared('funcName').many(sql`string`)``
 - ``{pool,client}.prepared('funcName').one(sql`string`)``
 - `{pool,client}._query(sql, [params], [cb])`: The original .query() method.
-  Useful when you want to bypass the `sql`/`_unsafe` requirement, like when
+  Useful when you want to bypass the `sql`/`_raw` requirement, like when
   executing sql files.
 
 
 ### Query template tags
 
-pg-extra forces you to tag template strings with `sql` or `_unsafe`.
+pg-extra forces you to tag template strings with `sql` or `_raw`.
 You usually use `sql`.
 
 `sql` is a simple helper that translates this:
@@ -122,17 +124,58 @@ into the sql bindings object that node-postgres expects:
 }
 ```
 
-`_unsafe` is how you opt-in to regular string interpolation, made ugly
+`_raw` is how you opt-in to regular string interpolation, made ugly
 so that it stands out.
 
 Use `.append()` to chain on to the query. The argument to `.append()`
-must also be tagged with `sql` or `_unsafe`.
+must also be tagged with `sql` or `_raw`.
 
 
 ``` javascript
-sql`${'foo'} ${'bar'}`.append(_unsafe`${'baz'}`) // '$1 $2 baz'
-_unsafe`${'foo'} ${'bar'}`.append(sql`${'baz'}`) // 'foo bar $1'
+sql`${'foo'} ${'bar'}`.append(_raw`${'baz'}`) // '$1 $2 baz'
+_raw`${'foo'} ${'bar'}`.append(sql`${'baz'}`) // 'foo bar $1'
 ```
+
+## Cookbook
+
+### Dynamic Queries
+
+Reply to issue: <https://github.com/danneu/pg-extra/issues/1>
+
+Let's say you want to bulk-insert:
+
+```sql
+INSERT INTO users (username)
+VALUES
+('john'),
+('jack'),
+('jill');
+```
+
+...And you want to be able to use your bulk-insert query whether you're 
+inserting one or one hundred records.
+
+I recommend using a SQL-generator like [knex][knex]:
+
+```javascript
+const knex = require('knex')
+
+// `usernames` will look like ['jack', 'jill', 'john']
+exports.insertUsers = function (usernames) {
+    const sqlString = knex('users')
+        // we want to pass [{ username: 'jack' }, { username: 'john' }, ...]
+        // to the .insert() function, which is a mapping of column names
+        // to values.
+        .insert(usernames.map((u) => ({ username: u.uname })))
+        .toString()
+    return client._query(sqlString)
+}
+```
+
+**Note**: Since knex gives you the full, escaped, safe query string to execute,
+use `_query(string)` to circumvent pg-extra.
+
+[knex]: http://knexjs.org/
 
 ## Test
 
