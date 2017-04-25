@@ -149,6 +149,6 @@ module.exports = {
   parseUrl,
   q: SqlStatement.sql, // deprecated in favor of `sql`
   sql: SqlStatement.sql,
-  _unsafe: SqlStatement._unsafe, // deprecated in favor of `_raw`
+  _unsafe: SqlStatement._raw, // deprecated in favor of `_raw`
   _raw: SqlStatement._raw
 }
