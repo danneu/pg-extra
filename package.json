@@ -4,7 +4,7 @@
   "version": "0.0.11",
   "main": "src/index.js",
   "scripts": {
-    "lint": "./node_modules/.bin/standard 'src/**.js' 'test/**.js'",
+    "lint": "node_modules/.bin/standard 'src/**.js' 'test/**.js'",
     "test": "node_modules/.bin/ava",
     "patch": "npm version patch && npm publish",
     "minor": "npm version minor && npm publish",
@@ -18,7 +18,7 @@
   },
   "author": "Dan Neumann <danrodneu@gmail.com> (https://github.com/danneu)",
   "devDependencies": {
-    "ava": "^0.19.1",
+    "ava": "^0.16.0",
     "pg": "^6.1.5",
     "standard": "^10.0.2"
   },

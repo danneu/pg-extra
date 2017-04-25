@@ -31,7 +31,7 @@ function query (statement, _, cb) {
   }
   // else we're calling it
   if (!(statement instanceof SqlStatement)) {
-    return Promise.reject(new Error('must build query with sql or __raw'))
+    return Promise.reject(new Error('must build query with sql or _raw'))
   }
   return this._query(statement)
 }
