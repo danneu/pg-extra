@@ -17,13 +17,16 @@
     "url": "git+https://github.com/danneu/pg-extra.git"
   },
   "author": "Dan Neumann <danrodneu@gmail.com> (https://github.com/danneu)",
+  "peerDependencies": {
+    "pg": "<7.0"
+  },
   "devDependencies": {
     "ava": "^0.16.0",
     "pg": "^6.1.5",
     "standard": "^10.0.2"
   },
   "engines": {
-    "node": "7.x"
+    "node": ">=7.x"
   },
   "license": "MIT"
 }
