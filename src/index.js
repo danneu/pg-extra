@@ -1,15 +1,14 @@
-
-const {parse} = require('url')
+const { parse } = require('url')
 // 1st
 const SqlStatement = require('./SqlStatement')
 
 // =========================================================
 
-function parseUrl (url) {
+function parseUrl(url) {
   const params = parse(url)
   let user, password
   if (params.auth) {
-    [user, password] = params.auth.split(':')
+    ;[user, password] = params.auth.split(':')
   }
   const [, database] = params.pathname.match(/\/(.+)$/) || []
   return {
@@ -23,7 +22,7 @@ function parseUrl (url) {
 
 // =========================================================
 
-function query (statement, _, cb) {
+function query(statement, _, cb) {
   // if callback is given, node-postgres is calling this
   // so pass it to the original query.
   if (typeof cb === 'function') {
@@ -36,12 +35,12 @@ function query (statement, _, cb) {
   return this._query(statement)
 }
 
-async function many (sql, params) {
+async function many(sql, params) {
   const result = await this.query(sql, params)
   return result.rows
 }
 
-async function one (sql, params) {
+async function one(sql, params) {
   const result = await this.query(sql, params)
   if (result.rows.length > 1) {
     console.warn('one() returned more than one row')
@@ -49,14 +48,14 @@ async function one (sql, params) {
   return result.rows[0]
 }
 
-function prepared (name) {
+function prepared(name) {
   return new Prepared(name, this.query.bind(this))
 }
 
-async function withTransaction (runner) {
+async function withTransaction(runner) {
   const client = await this.connect()
 
-  async function rollback (err) {
+  async function rollback(err) {
     try {
       await client._query('ROLLBACK')
     } catch (err) {
@@ -67,9 +66,11 @@ async function withTransaction (runner) {
     }
     client.release()
 
-    if (err.code === '40P01') { // Deadlock
+    if (err.code === '40P01') {
+      // Deadlock
       return withTransaction(runner)
-    } else if (err.code === '40001') { // Serialization error
+    } else if (err.code === '40001') {
+      // Serialization error
       return withTransaction(runner)
     }
     err.rolledback = true
@@ -102,7 +103,7 @@ async function withTransaction (runner) {
 
 // =========================================================
 
-function Prepared (name, onQuery) {
+function Prepared(name, onQuery) {
   this.name = name
   this.onQuery = onQuery
 }
@@ -111,7 +112,7 @@ Prepared.prototype.many = many
 
 Prepared.prototype.one = one
 
-Prepared.prototype.query = async function (statement) {
+Prepared.prototype.query = async function(statement) {
   if (!(statement instanceof SqlStatement)) {
     throw new Error('must build query with sql or __raw')
   }
@@ -120,7 +121,7 @@ Prepared.prototype.query = async function (statement) {
 
 // =========================================================
 
-function extend (pg) {
+function extend(pg) {
   // Save original query() methods
   pg.Client.prototype._query = pg.Client.prototype.query
   pg.Pool.super_.prototype._query = pg.Pool.super_.prototype.query
@@ -132,11 +133,11 @@ function extend (pg) {
   // Pool only
   pg.Pool.super_.prototype.withTransaction = withTransaction
   // Parse int8 into Javascript integer
-  pg.types.setTypeParser(20, (val) => {
+  pg.types.setTypeParser(20, val => {
     return val === null ? null : Number.parseInt(val, 10)
   })
   // Parse numerics into floats
-  pg.types.setTypeParser(1700, (val) => {
+  pg.types.setTypeParser(1700, val => {
     return val === null ? null : Number.parseFloat(val)
   })
   return pg
