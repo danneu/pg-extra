@@ -1,7 +1,7 @@
 {
   "name": "pg-extra",
   "description": "helpful extensions for node-postgres",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "src/index.js",
   "scripts": {
     "test": "node_modules/.bin/ava",
@@ -10,8 +10,7 @@
     "major": "npm version major && npm publish",
     "postpublish": "git push origin master --follow-tags",
     "deploy": "git pull --rebase origin master && git push origin master",
-    "pretty-fix":
-      "./node_modules/.bin/prettier --write \"{src,sql,test}/**.js\""
+    "pretty-fix": "./node_modules/.bin/prettier --write \"{src,sql,test}/**.js\""
   },
   "repository": {
     "type": "git",
