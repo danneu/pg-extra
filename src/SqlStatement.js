@@ -5,9 +5,15 @@ class SqlStatement {
   }
 
   append(statement) {
+    // falsey values no-op to make conditional appends easier
+    if (!statement) {
+      return this
+    }
+
     if (!(statement instanceof SqlStatement)) {
       throw new Error('append() must build query with `sql` or `_raw`')
     }
+
     this.strings = this.strings
       .slice(0, this.strings.length - 1)
       .concat([

@@ -92,3 +92,15 @@ test('append() can be chained', t => {
   t.deepEqual(stmt.text, 'SELECT $1::int 43 $2 45')
   t.deepEqual(stmt.values, [42, 44])
 })
+
+test('append() accepts ignores falsey values', async t => {
+  const stmt = sql`SELECT`
+    .append(null)
+    .append(false)
+    .append(undefined)
+    .append(0)
+    .append('')
+    .append(_raw`${42}`)
+
+  t.deepEqual(stmt.text, 'SELECT 42')
+})
