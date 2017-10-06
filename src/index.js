@@ -16,7 +16,7 @@ function parseUrl(url) {
     password,
     host: params.hostname,
     port: params.port || 5432,
-    database: database
+    database,
   }
 }
 
@@ -151,5 +151,5 @@ module.exports = {
   q: SqlStatement.sql, // deprecated in favor of `sql`
   sql: SqlStatement.sql,
   _unsafe: SqlStatement._raw, // deprecated in favor of `_raw`
-  _raw: SqlStatement._raw
+  _raw: SqlStatement._raw,
 }

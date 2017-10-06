@@ -4,13 +4,14 @@
   "version": "0.1.0",
   "main": "src/index.js",
   "scripts": {
-    "lint": "node_modules/.bin/standard 'src/**.js' 'test/**.js'",
     "test": "node_modules/.bin/ava",
     "patch": "npm version patch && npm publish",
     "minor": "npm version minor && npm publish",
     "major": "npm version major && npm publish",
     "postpublish": "git push origin master --follow-tags",
-    "deploy": "git pull --rebase origin master && git push origin master"
+    "deploy": "git pull --rebase origin master && git push origin master",
+    "pretty-fix":
+      "./node_modules/.bin/prettier --write \"{src,sql,test}/**.js\""
   },
   "repository": {
     "type": "git",
@@ -20,9 +21,15 @@
   "peerDependencies": {
     "pg": ">=7.3"
   },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
   "devDependencies": {
     "ava": "^0.16.0",
-    "pg": "^7.3.0"
+    "pg": "^7.3.0",
+    "prettier": "^1.7.4"
   },
   "engines": {
     "node": ">=7.x"

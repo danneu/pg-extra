@@ -12,7 +12,7 @@ class SqlStatement {
       .slice(0, this.strings.length - 1)
       .concat([
         this.strings[this.strings.length - 1] + ' ' + statement.strings[0],
-        ...statement.strings.slice(1)
+        ...statement.strings.slice(1),
       ])
     this.values = this.values.concat(statement.values)
     return this
