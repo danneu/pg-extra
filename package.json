@@ -18,12 +18,11 @@
   },
   "author": "Dan Neumann <danrodneu@gmail.com> (https://github.com/danneu)",
   "peerDependencies": {
-    "pg": "<7.0"
+    "pg": ">=7.3"
   },
   "devDependencies": {
     "ava": "^0.16.0",
-    "pg": "^6.1.5",
-    "standard": "^10.0.2"
+    "pg": "^7.3.0"
   },
   "engines": {
     "node": ">=7.x"

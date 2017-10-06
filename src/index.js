@@ -123,14 +123,14 @@ Prepared.prototype.query = async function (statement) {
 function extend (pg) {
   // Save original query() methods
   pg.Client.prototype._query = pg.Client.prototype.query
-  pg.Pool.prototype._query = pg.Pool.prototype.query
+  pg.Pool.super_.prototype._query = pg.Pool.super_.prototype.query
   // Client + Pool
-  pg.Client.prototype.query = pg.Pool.prototype.query = query
-  pg.Client.prototype.many = pg.Pool.prototype.many = many
-  pg.Client.prototype.one = pg.Pool.prototype.one = one
-  pg.Client.prototype.prepared = pg.Pool.prototype.prepared = prepared
+  pg.Client.prototype.query = pg.Pool.super_.prototype.query = query
+  pg.Client.prototype.many = pg.Pool.super_.prototype.many = many
+  pg.Client.prototype.one = pg.Pool.super_.prototype.one = one
+  pg.Client.prototype.prepared = pg.Pool.super_.prototype.prepared = prepared
   // Pool only
-  pg.Pool.prototype.withTransaction = withTransaction
+  pg.Pool.super_.prototype.withTransaction = withTransaction
   // Parse int8 into Javascript integer
   pg.types.setTypeParser(20, (val) => {
     return val === null ? null : Number.parseInt(val, 10)
