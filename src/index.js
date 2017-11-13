@@ -1,4 +1,4 @@
-const SqlStatement = require('./SqlStatement')
+const SqlStatement = require('./sql-statement')
 const parseUrl = require('./parse-url')
 
 function query(statement, _, cb) {

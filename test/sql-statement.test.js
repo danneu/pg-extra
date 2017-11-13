@@ -1,5 +1,5 @@
 const test = require('ava')
-const { sql, _raw } = require('../src/SqlStatement')
+const { sql, _raw } = require('../src')
 
 test('works', t => {
     const statement = sql`SELECT 1`
