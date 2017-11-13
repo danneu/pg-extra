@@ -1,7 +1,6 @@
-
-Requires Node v7.x+ and pg v7.3+ (npm package).
-
 # pg-extra [![Build Status](https://travis-ci.org/danneu/pg-extra.svg?branch=master)](https://travis-ci.org/danneu/pg-extra) [![NPM version](https://badge.fury.io/js/pg-extra.svg)](http://badge.fury.io/js/pg-extra) [![Dependency Status](https://david-dm.org/danneu/pg-extra.svg)](https://david-dm.org/danneu/pg-extra)
+
+> Requires Node 7.x+ and pg 7.3+.
 
 A simple set of extensions and helpers for [node-postgres][node-postgres].
 
@@ -152,14 +151,14 @@ VALUES
 ('jill');
 ```
 
-...And you want to be able to use your bulk-insert query whether you're 
+...And you want to be able to use your bulk-insert query whether you're
 inserting one or one hundred records.
 
 I recommend using a SQL-generator like [knex][knex]:
 
 ```javascript
-const knex = require('knex')
-const {extend, parseUrl} = require('pg-extra')
+const knex = require('knex')({ client: 'pg' })
+const {extend, parseUrl, _raw} = require('pg-extra')
 const pg = extend(require('pg'))
 
 const pool = new pg.Pool(parseUrl('postgres://user:pass@localhost:5432/my-db'))
@@ -172,12 +171,11 @@ exports.insertUsers = function (usernames) {
         // to values.
         .insert(usernames.map((username) => ({ username })))
         .toString()
-    return pool._query(sqlString)
+    return pool.query(_raw`${sqlString}`)
 }
 ```
 
-**Note**: Since knex gives you the full, escaped, safe query string to execute,
-use `_query(string)` to circumvent pg-extra.
+**Note**: Or you can circumvent pg-extra entirely with `pool._query(string)`.
 
 ## Test
 

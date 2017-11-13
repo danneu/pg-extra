@@ -1,26 +1,5 @@
-const { parse } = require('url')
-// 1st
 const SqlStatement = require('./SqlStatement')
-
-// =========================================================
-
-function parseUrl(url) {
-  const params = parse(url)
-  let user, password
-  if (params.auth) {
-    ;[user, password] = params.auth.split(':')
-  }
-  const [, database] = params.pathname.match(/\/(.+)$/) || []
-  return {
-    user,
-    password,
-    host: params.hostname,
-    port: params.port || 5432,
-    database,
-  }
-}
-
-// =========================================================
+const parseUrl = require('./parse-url')
 
 function query(statement, _, cb) {
   // if callback is given, node-postgres is calling this
