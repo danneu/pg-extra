@@ -199,7 +199,7 @@ exports.insertUsers = function (usernames) {
 
 ## Why mutate `pg`?
 
-This library works by mutating the `pg` module with `extend(require('pg))`
+This library works by mutating the `pg` module with `extend(require('pg'))`
 to add and override its prototype methods.
 
 This is generally something you want to avoid when writing Javascript
