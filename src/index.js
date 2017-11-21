@@ -1,3 +1,6 @@
+const pump = require('pump')
+const { Transform } = require('stream')
+const QueryStream = require('pg-query-stream')
 const SqlStatement = require('./sql-statement')
 const parseUrl = require('./parse-url')
 
@@ -100,6 +103,33 @@ Prepared.prototype.query = async function(statement) {
 
 // =========================================================
 
+async function poolStream(statement, transform = x => x) {
+    if (!(statement instanceof SqlStatement)) {
+        throw new Error('must build query with sql or _raw')
+    }
+    const client = await this.connect()
+    const query = new QueryStream(statement.text, statement.values)
+    const stream = client._query(query)
+    const output = new Transform({
+        objectMode: true,
+        transform(row, encoding, cb) {
+            let transformed
+            try {
+                transformed = transform(row)
+            } catch (err) {
+                return cb(err)
+            }
+            cb(null, transformed)
+        },
+    })
+
+    return pump(stream, output, err => {
+        client.release()
+    })
+}
+
+// =========================================================
+
 function extend(pg) {
     // Save original query() methods
     pg.Client.prototype._query = pg.Client.prototype.query
@@ -111,6 +141,7 @@ function extend(pg) {
     pg.Client.prototype.prepared = pg.Pool.super_.prototype.prepared = prepared
     // Pool only
     pg.Pool.super_.prototype.withTransaction = withTransaction
+    pg.Pool.super_.prototype.stream = poolStream
     // Parse int8 into Javascript integer
     pg.types.setTypeParser(20, val => {
         return val === null ? null : Number.parseInt(val, 10)

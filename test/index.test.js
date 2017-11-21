@@ -1,13 +1,12 @@
 const test = require('ava')
-const { extend, parseUrl, sql, _raw } = require('../src')
+const { extend, sql, _raw } = require('../src')
 const pg = extend(require('pg'))
+const { connectionString } = require('./util')
 
-const url = 'postgres://localhost:5432/pg_extra_test'
-
-const pool = new pg.Pool(parseUrl(url))
+const pool = new pg.Pool({ connectionString })
 
 async function withClient(runner) {
-    const client = new pg.Client(parseUrl(url))
+    const client = new pg.Client({ connectionString })
     await client.connect()
     try {
         await runner(client)

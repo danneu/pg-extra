@@ -6,7 +6,7 @@ A simple set of extensions and helpers for [node-postgres][node-postgres].
 
 ## Quick Overview
 
-- Extends pg.Pool with prototype methods `many`, `one`, `withTransaction`.
+- Extends pg.Pool with prototype methods `many`, `one`, `withTransaction`, `stream`.
 - Extends pg.Client with prototype methods `many`, `one`.
 - Extends both with `.prepared(name).{query,many,one}()`
 - The above methods all return promises just like
@@ -77,6 +77,30 @@ exports.transferBalance = async function (from, to, amount) {
 }
 ```
 
+### Streaming
+
+Return a readable stream of query results.
+
+In this example, we want to stream all of the usernames in the
+database to the browser.
+
+- `pool.stream()` returns `Promise<stream.Readable>` rather than just `stream.Readable`.
+- Provide an optional second argument to transform each row.
+
+```javascript
+const { sql } = require('pg-extra')
+
+router.get('/usernames', async ctx => {
+    const stream = await pool.stream(_raw`
+        SELECT uname
+        FROM users
+        ORDER BY uname
+    `, (row) => row.uname)
+
+    ctx.body = stream
+})
+```
+
 ## Extensions
 
 - ``pool.query(sql`string`)``: Resolves a postgres Result.
@@ -91,7 +115,6 @@ exports.transferBalance = async function (from, to, amount) {
 - `{pool,client}._query(sql, [params], [cb])`: The original .query() method.
   Useful when you want to bypass the `sql`/`_raw` requirement, like when
   executing sql files.
-
 
 ### Query template tags
 
@@ -128,7 +151,6 @@ so that it stands out.
 
 Use `.append()` to chain on to the query. The argument to `.append()`
 must also be tagged with `sql` or `_raw`.
-
 
 ``` javascript
 sql`${'foo'} ${'bar'}`.append(_raw`${'baz'}`) // '$1 $2 baz'
@@ -192,7 +214,8 @@ Then run the tests:
 
 ## TODO
 
-- Add `withTransaction` to `pg.Client`.
+- Add `withTransaction()` to `pg.Client`.
+- Add `stream()` to `pg.Client`.
 
 [node-postgres]: https://github.com/brianc/node-postgres
 [knex]: http://knexjs.org/
