@@ -199,6 +199,49 @@ exports.insertUsers = function (usernames) {
 
 **Note**: Or you can circumvent pg-extra entirely with `pool._query(string)`.
 
+## Why mutate `pg`?
+
+This library works by mutating the `pg` module with `extend(require('pg))`
+to add and override its prototype methods.
+
+This is generally something you want to avoid when writing Javascript
+code. For example, I could have instead implemented this library as
+regular functions that just take `Client`/`Pool` instances:
+
+```javascript
+const {one, many, query, withTransaction, sql, _raw} = require('pg-extra')
+
+await one(client, sql`select * from users where id = ${id}`)
+
+await many(pool, sql`select * from users`)
+
+await withTransaction(async client => {
+    const user = await one(client, sql`insert into users (uname) values (${uname})`)
+    return query(client, sql`insert into profiles (user_id) values (${user.id})`)
+})
+```
+
+Seems reasonable at a glance.
+
+However, I decided against this because it would be too easy to introduce
+SQL injection vulnerabilities when mixing and matching this library
+with `pg`'s methods.
+
+For example, this would be an easy and possible mistake:
+
+```javascript
+await withTransaction(async client => {
+    const user = await client.query(`insert into users (uname) values (${uname})`)
+    return query(client, sql`insert into profiles (user_id) values (${user.id})`)
+})
+```
+
+Whoops, got used to `pg-extra`'s sweet string interpolation but accidentally used
+`pg`'s `client.query()` method instead. Now you have a SQL injection vulnerability.
+
+That's exactly the sort of mistake this library tries to prevent and I couldn't think
+of a better implementation than mutating `pg`.
+
 ## Test
 
 Setup local postgres database with seeded rows that the tests expect:
