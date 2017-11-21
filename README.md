@@ -45,9 +45,7 @@ const pg = extend(require('pg'))
 
 const url = 'postgres://user:pass@localhost:5432/my-db'
 
-const pool = new pg.Pool(Object.assign(parseUrl(url), {
-  ssl: true
-}))
+const pool = new pg.Pool({ ...parseUrl(url), ssl: true })
 
 exports.findUserByUname = async function (uname) {
   return pool.one(sql`
