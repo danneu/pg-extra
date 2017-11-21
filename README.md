@@ -88,7 +88,7 @@ database to the browser.
 - Provide an optional second argument to transform each row.
 
 ```javascript
-const { sql } = require('pg-extra')
+const { _raw } = require('pg-extra')
 
 router.get('/usernames', async ctx => {
     const stream = await pool.stream(_raw`
