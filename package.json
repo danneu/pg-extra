@@ -1,7 +1,7 @@
 {
     "name": "pg-extra",
     "description": "helpful extensions for node-postgres",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "main": "src/index.js",
     "scripts": {
         "test": "ava test/**/*.test.js",
