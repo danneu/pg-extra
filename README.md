@@ -43,9 +43,9 @@ A simple set of extensions and helpers for [node-postgres][node-postgres].
 const {extend, sql, _raw, parseUrl} = require('pg-extra')
 const pg = extend(require('pg'))
 
-const url = 'postgres://user:pass@localhost:5432/my-db'
+const connectionString = 'postgres://user:pass@localhost:5432/my-db'
 
-const pool = new pg.Pool({ ...parseUrl(url), ssl: true })
+const pool = new pg.Pool({ connectionString, ssl: true })
 
 exports.findUserByUname = async function (uname) {
   return pool.one(sql`
@@ -181,7 +181,7 @@ const knex = require('knex')({ client: 'pg' })
 const {extend, parseUrl, _raw} = require('pg-extra')
 const pg = extend(require('pg'))
 
-const pool = new pg.Pool(parseUrl('postgres://user:pass@localhost:5432/my-db'))
+const pool = new pg.Pool({ connectionString: 'postgres://user:pass@localhost:5432/my-db' })
 
 // `usernames` will look like ['jack', 'jill', 'john']
 exports.insertUsers = function (usernames) {
