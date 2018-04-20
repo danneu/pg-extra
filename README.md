@@ -245,7 +245,6 @@ of a better implementation than mutating `pg`.
 Setup local postgres database with seeded rows that the tests expect:
 
     $ createdb pg_extra_test
-    $ psql pg_extra_test
     $ psql -d pg_extra_test -c 'create table bars (n int not null);'
     $ psql -d pg_extra_test -c 'insert into bars (n) values (1), (2), (3);'
 
