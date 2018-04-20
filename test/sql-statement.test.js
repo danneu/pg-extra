@@ -1,5 +1,6 @@
 const test = require('ava')
 const { sql, _raw } = require('../src')
+const trimIndent = require('../src/trim-indent')
 
 test('works', t => {
     const statement = sql`SELECT 1`
@@ -23,15 +24,30 @@ test('interpolates multiple bindings', t => {
 
     t.is(
         statement.text,
-        `
+        trimIndent(`
      SELECT *
      FROM users
      WHERE lower(uname) = lower($1)
        AND num = ANY ($2)
-  `
+  `)
     )
 
     t.deepEqual(statement.values, ['foo', [1, 2, 3]])
+})
+
+// =========================================================
+// BINDING REUSE
+
+test('reuses bindings', t => {
+    const statement = sql`SELECT * FROM users WHERE a = ${42} AND b = ${100} AND c = ${42}`
+    t.deepEqual(statement.values, [42, 100])
+})
+
+test('reuses bindings through .append()', t => {
+    const statement = sql`SELECT * FROM users WHERE a = ${42} AND b = ${100} AND c = ${42}`
+        .append(_raw`AND d = ${999}`)
+        .append(sql`AND e = ${101} AND f = ${42}`)
+    t.deepEqual(statement.values, [42, 100, 101])
 })
 
 // =========================================================
@@ -53,7 +69,7 @@ test('append(sql) pads as expected', t => {
         sql`SELECT ${42}::int`.append(sql`${43}-`).text,
         'SELECT $1::int $2-'
     )
-    t.deepEqual(sql`SELECT ${42}::int`.append(sql``).text, 'SELECT $1::int ')
+    t.deepEqual(sql`SELECT ${42}::int`.append(sql``).text, 'SELECT $1::int')
 })
 
 test('append(sql) does affect values', t => {
@@ -80,7 +96,7 @@ test('append(_raw) pads as expected', t => {
         sql`SELECT ${42}::int`.append(_raw`${43}-`).text,
         'SELECT $1::int 43-'
     )
-    t.deepEqual(sql`SELECT ${42}::int`.append(_raw``).text, 'SELECT $1::int ')
+    t.deepEqual(sql`SELECT ${42}::int`.append(_raw``).text, 'SELECT $1::int')
 })
 
 test('append() can be chained', t => {
