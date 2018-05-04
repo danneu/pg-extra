@@ -1,7 +1,13 @@
+const trimIndent = require('./trim-indent')
+
 class SqlStatement {
     constructor(strings, values = []) {
         this.strings = strings
-        this.values = values
+        this.values = []
+        // Mapping of $binding to this.values idx
+        // i.e. 0 -> 2 means $1 -> this.values[2]
+        this.bindings = []
+        this._addValues(values)
     }
 
     append(statement) {
@@ -22,7 +28,9 @@ class SqlStatement {
                     statement.strings[0],
                 ...statement.strings.slice(1),
             ])
-        this.values = this.values.concat(statement.values)
+
+        this._addValues(statement.values)
+
         return this
     }
 
@@ -31,9 +39,31 @@ class SqlStatement {
         return this
     }
 
-    // used by node-postgres
+    // Returns the SQL string with $binding placeholders. (used by node-postgres)
+    //
+    // Attempts to remove newline and indentation noise.
     get text() {
-        return this.strings.reduce((prev, curr, i) => prev + '$' + i + curr)
+        const text = this.strings.reduce((prev, curr, i) => {
+            const v = this.values[this.bindings[i - 1]]
+            // TODO: Use Map for reverse lookup
+            const binding = this.values.indexOf(v) + 1
+            return prev + '$' + binding + curr
+        })
+
+        return trimIndent(text)
+    }
+
+    // Updates this.values and this.bindings with additional values
+    _addValues(values) {
+        for (const v of values) {
+            const i = this.values.indexOf(v)
+            if (i > -1) {
+                this.bindings.push(i)
+            } else {
+                this.values.push(v)
+                this.bindings.push(this.values.length - 1)
+            }
+        }
     }
 }
 
