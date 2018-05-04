@@ -1,13 +1,13 @@
 const test = require('ava')
 const trimIndent = require('../src/trim-indent')
 
-test('no indent', t => {
+test('no indent', (t) => {
     t.is(trimIndent('foo'), 'foo')
     t.is(trimIndent(''), '')
     t.is(trimIndent('\n\n'), '')
 })
 
-test('simple multiline', t => {
+test('simple multiline', (t) => {
     t.is(
         trimIndent(`
     a
@@ -18,7 +18,7 @@ test('simple multiline', t => {
     )
 })
 
-test('preserves multiline newlines', t => {
+test('preserves multiline newlines', (t) => {
     t.is(
         trimIndent(`
     a
@@ -29,6 +29,6 @@ test('preserves multiline newlines', t => {
     )
 })
 
-test('trims', t => {
+test('trims', (t) => {
     t.is(trimIndent('\n\na\n\n'), 'a')
 })

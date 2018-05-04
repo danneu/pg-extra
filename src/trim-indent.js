@@ -14,9 +14,7 @@ module.exports = function trimIndent(string) {
         return acc < indent ? acc : indent
     }, Infinity)
     return lines
-        .map(line => {
-            return line.slice(minIndent)
-        })
+        .map((line) => line.slice(minIndent))
         .join('\n')
         .trim()
 }

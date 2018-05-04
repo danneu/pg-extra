@@ -1,7 +1,7 @@
 const test = require('ava')
 const parseUrl = require('../src/parse-url')
 
-test('basic case', t => {
+test('basic case', (t) => {
     t.deepEqual(parseUrl('postgres://user:pass@example.com:1234/dbname'), {
         user: 'user',
         password: 'pass',
@@ -11,7 +11,7 @@ test('basic case', t => {
     })
 })
 
-test('missing auth', t => {
+test('missing auth', (t) => {
     t.deepEqual(parseUrl('postgres://example.com:1234/dbname'), {
         user: '',
         password: '',
@@ -21,7 +21,7 @@ test('missing auth', t => {
     })
 })
 
-test('default port', t => {
+test('default port', (t) => {
     t.deepEqual(parseUrl('postgres://example.com/dbname'), {
         user: '',
         password: '',

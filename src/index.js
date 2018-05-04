@@ -4,6 +4,13 @@ const QueryStream = require('pg-query-stream')
 const SqlStatement = require('./sql-statement')
 const parseUrl = require('./parse-url')
 
+module.exports = {
+    extend,
+    parseUrl,
+    sql: SqlStatement.sql,
+    _raw: SqlStatement._raw,
+}
+
 function query(statement, _, cb) {
     // if callback is given, node-postgres is calling this
     // so pass it to the original query.
@@ -103,7 +110,9 @@ Prepared.prototype.query = async function(statement) {
 
 // =========================================================
 
-async function poolStream(statement, transform = x => x) {
+const identity = (x) => x
+
+async function poolStream(statement, transform = identity) {
     if (!(statement instanceof SqlStatement)) {
         throw new Error('must build query with sql or _raw')
     }
@@ -123,7 +132,7 @@ async function poolStream(statement, transform = x => x) {
         },
     })
 
-    return pump(stream, output, err => {
+    return pump(stream, output, (err) => {
         client.release()
     })
 }
@@ -143,21 +152,12 @@ function extend(pg) {
     pg.Pool.super_.prototype.withTransaction = withTransaction
     pg.Pool.super_.prototype.stream = poolStream
     // Parse int8 into Javascript integer
-    pg.types.setTypeParser(20, val => {
+    pg.types.setTypeParser(20, (val) => {
         return val === null ? null : Number.parseInt(val, 10)
     })
     // Parse numerics into floats
-    pg.types.setTypeParser(1700, val => {
+    pg.types.setTypeParser(1700, (val) => {
         return val === null ? null : Number.parseFloat(val)
     })
     return pg
-}
-
-// API
-
-module.exports = {
-    extend,
-    parseUrl,
-    sql: SqlStatement.sql,
-    _raw: SqlStatement._raw,
 }
