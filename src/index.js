@@ -158,8 +158,6 @@ function extend(pg) {
 module.exports = {
     extend,
     parseUrl,
-    q: SqlStatement.sql, // deprecated in favor of `sql`
     sql: SqlStatement.sql,
-    _unsafe: SqlStatement._raw, // deprecated in favor of `_raw`
     _raw: SqlStatement._raw,
 }
