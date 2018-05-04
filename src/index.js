@@ -103,7 +103,7 @@ Prepared.prototype.one = one
 
 Prepared.prototype.query = async function(statement) {
     if (!(statement instanceof SqlStatement)) {
-        throw new Error('must build query with sql or __raw')
+        throw new Error('must build query with sql or _raw')
     }
     return this.onQuery(statement.named(this.name))
 }
@@ -143,21 +143,26 @@ function extend(pg) {
     // Save original query() methods
     pg.Client.prototype._query = pg.Client.prototype.query
     pg.Pool.super_.prototype._query = pg.Pool.super_.prototype.query
+
     // Client + Pool
     pg.Client.prototype.query = pg.Pool.super_.prototype.query = query
     pg.Client.prototype.many = pg.Pool.super_.prototype.many = many
     pg.Client.prototype.one = pg.Pool.super_.prototype.one = one
     pg.Client.prototype.prepared = pg.Pool.super_.prototype.prepared = prepared
+
     // Pool only
     pg.Pool.super_.prototype.withTransaction = withTransaction
     pg.Pool.super_.prototype.stream = poolStream
+
     // Parse int8 into Javascript integer
     pg.types.setTypeParser(20, (val) => {
         return val === null ? null : Number.parseInt(val, 10)
     })
+
     // Parse numerics into floats
     pg.types.setTypeParser(1700, (val) => {
         return val === null ? null : Number.parseFloat(val)
     })
+
     return pg
 }

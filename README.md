@@ -6,18 +6,18 @@ A simple set of extensions and helpers for [node-postgres][node-postgres].
 
 ## Quick Overview
 
-- Extends pg.Pool with prototype methods `many`, `one`, `withTransaction`, `stream`.
-- Extends pg.Client with prototype methods `many`, `one`.
-- Extends both with `.prepared(name).{query,many,one}()`
-- The above methods all return promises just like
-  the existing `pool.query()` and `client.query()`.
-- Configures the client parser to parse postgres ints and numerics
-  into javascript numbers (else `SELECT 1::int8` would return a string "1").
-- `parseUrl` converts a postgres connection string into the object
-  that pg.Pool expects.
-- Exposes `sql` and `_raw` template literal helpers for writing queries.
+*   Extends pg.Pool with prototype methods `many`, `one`, `withTransaction`, `stream`.
+*   Extends pg.Client with prototype methods `many`, `one`.
+*   Extends both with `.prepared(name).{query,many,one}()`
+*   The above methods all return promises just like
+    the existing `pool.query()` and `client.query()`.
+*   Configures the client parser to parse postgres ints and numerics
+    into javascript numbers (else `SELECT 1::int8` would return a string "1").
+*   `parseUrl` converts a postgres connection string into the object
+    that pg.Pool expects.
+*   Exposes `sql` and `_raw` template literal helpers for writing queries.
 
-    ``` javascript
+    ```javascript
     const uname = 'nisha42'
     const key = 'uname'
     const direction = 'desc'
@@ -28,10 +28,11 @@ A simple set of extensions and helpers for [node-postgres][node-postgres].
       WHERE lower(uname) = lower(${uname})
     `.append(_raw`ORDER BY ${key} ${direction}`))
     ```
-- All query methods fail if the query you pass in is not built with the
-  `sql` or `_raw` tag. This avoids the issue of accidentally introducing
-  sql injection with template literals. If you want normal template literal
-  behavior (dumb interpolation), you must tag it with `_raw`.
+
+*   All query methods fail if the query you pass in is not built with the
+    `sql` or `_raw` tag. This avoids the issue of accidentally introducing
+    sql injection with template literals. If you want normal template literal
+    behavior (dumb interpolation), you must tag it with `_raw`.
 
 ## Install
 
@@ -39,39 +40,41 @@ A simple set of extensions and helpers for [node-postgres][node-postgres].
 
 ## Usage / Example
 
-``` javascript
-const {extend, sql, _raw, parseUrl} = require('pg-extra')
+```javascript
+const { extend, sql, _raw, parseUrl } = require('pg-extra')
 const pg = extend(require('pg'))
 
 const connectionString = 'postgres://user:pass@localhost:5432/my-db'
 
 const pool = new pg.Pool({ connectionString, ssl: true })
 
-exports.findUserByUname = async function (uname) {
-  return pool.one(sql`
+exports.findUserByUname = async function(uname) {
+    return pool.one(sql`
     SELECT *
     FROM users
     WHERE lower(uname) = lower(${uname})
   `)
 }
 
-exports.listUsersInCities = async function (cities, direction = 'DESC') {
-  return pool.many(sql`
+exports.listUsersInCities = async function(cities, direction = 'DESC') {
+    return pool.many(
+        sql`
     SELECT *
     FROM users
     WHERE city = ANY (${cities})
-  `.append(_raw`ORDER BY uname ${direction}`))
+  `.append(_raw`ORDER BY uname ${direction}`)
+    )
 }
 
-exports.transferBalance = async function (from, to, amount) {
-  return pool.withTransaction(async (client) => {
-    await client.query(sql`
+exports.transferBalance = async function(from, to, amount) {
+    return pool.withTransaction(async (client) => {
+        await client.query(sql`
       UPDATE accounts SET amount = amount - ${amount} WHERE id = ${from}
     `)
-    await client.query(sql`
+        await client.query(sql`
       UPDATE accounts SET amount = amount + ${amount} WHERE id = ${to}
     `)
-  })
+    })
 }
 ```
 
@@ -82,18 +85,21 @@ Return a readable stream of query results.
 In this example, we want to stream all of the usernames in the
 database to the browser.
 
-- `pool.stream()` returns `Promise<stream.Readable>` rather than just `stream.Readable`.
-- Provide an optional second argument to transform each row.
+*   `pool.stream()` returns `Promise<stream.Readable>` rather than just `stream.Readable`.
+*   Provide an optional second argument to transform each row.
 
 ```javascript
 const { _raw } = require('pg-extra')
 
-router.get('/usernames', async ctx => {
-    const stream = await pool.stream(_raw`
+router.get('/usernames', async (ctx) => {
+    const stream = await pool.stream(
+        _raw`
         SELECT uname
         FROM users
         ORDER BY uname
-    `, (row) => row.uname)
+    `,
+        (row) => row.uname
+    )
 
     ctx.body = stream
 })
@@ -101,18 +107,18 @@ router.get('/usernames', async ctx => {
 
 ## Extensions
 
-- ``pool.query(sql`string`)``: Resolves a postgres Result.
-- ``pool.many(sql`string`)``: Resolves an array of rows.
-- ``pool.one(sql`string`)``: Resolves one row or null.
-- ``client.query(sql`string`)``: Resolves a postgres Result.
-- ``client.many(sql`string`)``: Resolves an array of rows.
-- ``client.one(sql`string`)``: Resolves one row or null.
-- ``{pool,client}.prepared('funcName').query(sql`string`)``
-- ``{pool,client}.prepared('funcName').many(sql`string`)``
-- ``{pool,client}.prepared('funcName').one(sql`string`)``
-- `{pool,client}._query(sql, [params], [cb])`: The original .query() method.
-  Useful when you want to bypass the `sql`/`_raw` requirement, like when
-  executing sql files.
+*   `` pool.query(sql`string`) ``: Resolves a postgres Result.
+*   `` pool.many(sql`string`) ``: Resolves an array of rows.
+*   `` pool.one(sql`string`) ``: Resolves one row or null.
+*   `` client.query(sql`string`) ``: Resolves a postgres Result.
+*   `` client.many(sql`string`) ``: Resolves an array of rows.
+*   `` client.one(sql`string`) ``: Resolves one row or null.
+*   `` {pool,client}.prepared('funcName').query(sql`string`) ``
+*   `` {pool,client}.prepared('funcName').many(sql`string`) ``
+*   `` {pool,client}.prepared('funcName').one(sql`string`) ``
+*   `{pool,client}._query(sql, [params], [cb])`: The original .query() method.
+    Useful when you want to bypass the `sql`/`_raw` requirement, like when
+    executing sql files.
 
 ### Query template tags
 
@@ -121,7 +127,7 @@ You usually use `sql`.
 
 `sql` is a simple helper that translates this:
 
-``` javascript
+```javascript
 sql`
   SELECT *
   FROM users
@@ -132,7 +138,7 @@ sql`
 
 into the sql bindings object that node-postgres expects:
 
-``` javascript
+```javascript
 {
   text: `
     SELECT *
@@ -150,9 +156,20 @@ so that it stands out.
 Use `.append()` to chain on to the query. The argument to `.append()`
 must also be tagged with `sql` or `_raw`.
 
-``` javascript
+```javascript
 sql`${'foo'} ${'bar'}`.append(_raw`${'baz'}`) // '$1 $2 baz'
 _raw`${'foo'} ${'bar'}`.append(sql`${'baz'}`) // 'foo bar $1'
+```
+
+`.append()` mutates the sql statement object, but you can use `.clone()`
+to create a deep copy of an existing instance.
+
+```javascript
+const statement1 = sql`SELECT 100`
+const statement2 = statement1.clone().append(sql`, 200`)
+
+statement1.text === 'SELECT 100'
+statement2.text === 'SELECT 100 , 200'
 ```
 
 ### Optimization: Bindings Reuse
@@ -163,7 +180,7 @@ Bindings are reused for equal (`===`) values.
 
 For example:
 
-``` javascript
+```javascript
 const bbcode = '[b]hello world[/b]'
 
 pool.query(sql`
@@ -174,7 +191,7 @@ pool.query(sql`
 
 pg-extra sends that query over the wire to Postgres as this:
 
-``` javascript
+```javascript
 {
     text: `
         INSERT INTO posts (length, bbcode, html)
@@ -186,7 +203,7 @@ pg-extra sends that query over the wire to Postgres as this:
 
 rather than this:
 
-``` javascript
+```javascript
 {
     text: `
         INSERT INTO posts (length, bbcode, html)
@@ -226,13 +243,15 @@ I recommend using a SQL-generator like [knex][knex]:
 
 ```javascript
 const knex = require('knex')({ client: 'pg' })
-const {extend, parseUrl, _raw} = require('pg-extra')
+const { extend, parseUrl, _raw } = require('pg-extra')
 const pg = extend(require('pg'))
 
-const pool = new pg.Pool({ connectionString: 'postgres://user:pass@localhost:5432/my-db' })
+const pool = new pg.Pool({
+    connectionString: 'postgres://user:pass@localhost:5432/my-db',
+})
 
 // `usernames` will look like ['jack', 'jill', 'john']
-exports.insertUsers = function (usernames) {
+exports.insertUsers = function(usernames) {
     const sqlString = knex('users')
         // we want to pass [{ username: 'jack' }, { username: 'john' }, ...]
         // to the .insert() function, which is a mapping of column names
@@ -300,10 +319,18 @@ Then run the tests:
 
     npm test
 
+## CHANGELOG
+
+*   **v1.1.0**:
+    *   Added `SqlStatement#clone()`.
+*   **v1.0.0**:
+    *   Deprecated `q` and `_unsafe`.
+    *   Added bindings reuse optimization.
+
 ## TODO
 
-- Add `withTransaction()` to `pg.Client`.
-- Add `stream()` to `pg.Client`.
+*   Add `withTransaction()` to `pg.Client`.
+*   Add `stream()` to `pg.Client`.
 
 [node-postgres]: https://github.com/brianc/node-postgres
 [knex]: http://knexjs.org/

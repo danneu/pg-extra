@@ -8,6 +8,19 @@ test('works', (t) => {
     t.deepEqual(statement.values, [])
 })
 
+test('clone works', (t) => {
+    const statement = sql`SELECT ${100}`
+    t.deepEqual(statement.text, 'SELECT $1')
+
+    statement.append(sql`, ${200}`)
+    t.deepEqual(statement.text, 'SELECT $1 , $2')
+
+    const statement2 = statement.clone()
+    statement2.append(sql`, ${300}`)
+    t.deepEqual(statement.text, 'SELECT $1 , $2')
+    t.deepEqual(statement2.text, 'SELECT $1 , $2 , $3')
+})
+
 test('interpolates one binding', (t) => {
     const statement = sql`SELECT ${42}::int`
     t.deepEqual(statement.text, 'SELECT $1::int')

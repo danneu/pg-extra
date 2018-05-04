@@ -1,3 +1,4 @@
+const deepClone = require('clone-deep')
 const trimIndent = require('./trim-indent')
 
 class SqlStatement {
@@ -10,6 +11,12 @@ class SqlStatement {
         this._addValues(values)
     }
 
+    // Returns a new deep-cloned instance.
+    clone() {
+        return new SqlStatement(this.strings.slice(0), deepClone(this.values))
+    }
+
+    // Appends another statement onto this statement, mutating and returning this statement.
     append(statement) {
         // falsey values no-op to make conditional appends easier
         if (!statement) {
@@ -66,6 +73,8 @@ class SqlStatement {
         }
     }
 }
+
+// TAGGED STRING TEMPLATES
 
 SqlStatement.sql = function(strings, ...values) {
     return new SqlStatement(strings, values)
