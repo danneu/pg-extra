@@ -3,10 +3,10 @@ const { extend, sql, _raw } = require('../src')
 const pg = extend(require('pg'))
 const { connectionString } = require('./util')
 
-const pool = new pg.Pool({ connectionString })
+const pool = new pg.extra.Pool({ connectionString })
 
 async function withClient(runner) {
-    const client = new pg.Client({ connectionString })
+    const client = new pg.extra.Client({ connectionString })
     await client.connect()
     try {
         await runner(client)

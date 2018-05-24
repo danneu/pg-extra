@@ -1,6 +1,6 @@
 const test = require('ava')
 const { sql, _raw } = require('../src')
-const trimIndent = require('../src/trim-indent')
+const trimIndent = require('../src/lib/trimIndent')
 
 test('works', (t) => {
     const statement = sql`SELECT 1`

@@ -1,5 +1,5 @@
 const test = require('ava')
-const trimIndent = require('../src/trim-indent')
+const trimIndent = require('../src/lib/trimIndent')
 
 test('no indent', (t) => {
     t.is(trimIndent('foo'), 'foo')
