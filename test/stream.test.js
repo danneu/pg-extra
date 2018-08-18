@@ -4,7 +4,7 @@ const pg = extend(require('pg'))
 const { connectionString } = require('./util')
 const toArray = require('stream-to-array')
 
-const pool = new pg.Pool({ connectionString })
+const pool = new pg.extra.Pool({ connectionString })
 
 test('pool stream without tranformer', async (t) => {
     const stream = await pool.stream(

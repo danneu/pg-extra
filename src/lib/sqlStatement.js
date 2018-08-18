@@ -1,5 +1,5 @@
 const deepClone = require('clone-deep')
-const trimIndent = require('./trim-indent')
+const trimIndent = require('./trimIndent')
 
 class SqlStatement {
     constructor(strings, values = []) {
@@ -30,9 +30,9 @@ class SqlStatement {
         this.strings = this.strings
             .slice(0, this.strings.length - 1)
             .concat([
-                this.strings[this.strings.length - 1] +
-                    ' ' +
-                    statement.strings[0],
+                `${this.strings[this.strings.length - 1]} ${
+                    statement.strings[0]
+                }`,
                 ...statement.strings.slice(1),
             ])
 
@@ -54,7 +54,7 @@ class SqlStatement {
             const v = this.values[this.bindings[i - 1]]
             // TODO: Use Map for reverse lookup
             const binding = this.values.indexOf(v) + 1
-            return prev + '$' + binding + curr
+            return `${prev}$${binding}${curr}`
         })
 
         return trimIndent(text)
@@ -76,11 +76,9 @@ class SqlStatement {
 
 // TAGGED STRING TEMPLATES
 
-SqlStatement.sql = function(strings, ...values) {
-    return new SqlStatement(strings, values)
-}
+SqlStatement.sql = (strings, ...values) => new SqlStatement(strings, values)
 
-SqlStatement._raw = function(strings, ...values) {
+SqlStatement._raw = (strings, ...values) => {
     const text = strings.reduce(
         (prev, chunk, i) => prev + values[i - 1] + chunk
     )
