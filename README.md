@@ -6,30 +6,32 @@ A simple set of extensions and helpers for [node-postgres][node-postgres].
 
 ## Quick Overview
 
-*   Extends pg.Pool with prototype methods `many`, `one`, `withTransaction`, `stream`.
-*   Extends pg.Client with prototype methods `many`, `one`.
-*   Extends both with `.prepared(name).{query,many,one}()`
-*   The above methods all return promises just like
+-   Does not mutate `pg` module prototypes.
+-   `extend(require('pg'))` creates `pg.extra` namespace with `pg.extra.Pool` and `pg.extra.Client`.
+-   Extends `pg.extra.Pool` with prototype methods `many`, `one`, `withTransaction`, `stream`.
+-   Extends `pg.extra.Client` with prototype methods `many`, `one`.
+-   Extends both with `.prepared(name).{query,many,one}()`
+-   The above methods all return promises just like
     the existing `pool.query()` and `client.query()`.
-*   Configures the client parser to parse postgres ints and numerics
+-   Configures the client parser to parse postgres ints and numerics
     into javascript numbers (else `SELECT 1::int8` would return a string "1").
-*   `parseUrl` converts a postgres connection string into the object
-    that pg.Pool expects.
-*   Exposes `sql` and `_raw` template literal helpers for writing queries.
+-   Exposes `sql` and `_raw` template literal helpers for writing queries.
 
     ```javascript
     const uname = 'nisha42'
     const key = 'uname'
     const direction = 'desc'
 
-    await pool.one(sql`
+    await pool.one(
+        sql`
       SELECT *
       FROM users
       WHERE lower(uname) = lower(${uname})
-    `.append(_raw`ORDER BY ${key} ${direction}`))
+    `.append(_raw`ORDER BY ${key} ${direction}`)
+    )
     ```
 
-*   All query methods fail if the query you pass in is not built with the
+-   All query methods fail if the query you pass in is not built with the
     `sql` or `_raw` tag. This avoids the issue of accidentally introducing
     sql injection with template literals. If you want normal template literal
     behavior (dumb interpolation), you must tag it with `_raw`.
@@ -41,12 +43,12 @@ A simple set of extensions and helpers for [node-postgres][node-postgres].
 ## Usage / Example
 
 ```javascript
-const { extend, sql, _raw, parseUrl } = require('pg-extra')
+const { extend, sql, _raw } = require('pg-extra')
 const pg = extend(require('pg'))
 
 const connectionString = 'postgres://user:pass@localhost:5432/my-db'
 
-const pool = new pg.Pool({ connectionString, ssl: true })
+const pool = new pg.extra.Pool({ connectionString, ssl: true })
 
 exports.findUserByUname = async function(uname) {
     return pool.one(sql`
@@ -85,8 +87,8 @@ Return a readable stream of query results.
 In this example, we want to stream all of the usernames in the
 database to the browser.
 
-*   `pool.stream()` returns `Promise<stream.Readable>` rather than just `stream.Readable`.
-*   Provide an optional second argument to transform each row.
+-   `pool.stream()` returns `Promise<stream.Readable>` rather than just `stream.Readable`.
+-   Provide an optional second argument to transform each row.
 
 ```javascript
 const { _raw } = require('pg-extra')
@@ -107,16 +109,16 @@ router.get('/usernames', async (ctx) => {
 
 ## Extensions
 
-*   `` pool.query(sql`string`) ``: Resolves a postgres Result.
-*   `` pool.many(sql`string`) ``: Resolves an array of rows.
-*   `` pool.one(sql`string`) ``: Resolves one row or null.
-*   `` client.query(sql`string`) ``: Resolves a postgres Result.
-*   `` client.many(sql`string`) ``: Resolves an array of rows.
-*   `` client.one(sql`string`) ``: Resolves one row or null.
-*   `` {pool,client}.prepared('funcName').query(sql`string`) ``
-*   `` {pool,client}.prepared('funcName').many(sql`string`) ``
-*   `` {pool,client}.prepared('funcName').one(sql`string`) ``
-*   `{pool,client}._query(sql, [params], [cb])`: The original .query() method.
+-   `` pool.query(sql`string`) ``: Resolves a postgres Result.
+-   `` pool.many(sql`string`) ``: Resolves an array of rows.
+-   `` pool.one(sql`string`) ``: Resolves one row or null.
+-   `` client.query(sql`string`) ``: Resolves a postgres Result.
+-   `` client.many(sql`string`) ``: Resolves an array of rows.
+-   `` client.one(sql`string`) ``: Resolves one row or null.
+-   `` {pool,client}.prepared('funcName').query(sql`string`) ``
+-   `` {pool,client}.prepared('funcName').many(sql`string`) ``
+-   `` {pool,client}.prepared('funcName').one(sql`string`) ``
+-   `{pool,client}._query(sql, [params], [cb])`: The original .query() method.
     Useful when you want to bypass the `sql`/`_raw` requirement, like when
     executing sql files.
 
@@ -243,10 +245,10 @@ I recommend using a SQL-generator like [knex][knex]:
 
 ```javascript
 const knex = require('knex')({ client: 'pg' })
-const { extend, parseUrl, _raw } = require('pg-extra')
+const { extend, _raw } = require('pg-extra')
 const pg = extend(require('pg'))
 
-const pool = new pg.Pool({
+const pool = new pg.extra.Pool({
     connectionString: 'postgres://user:pass@localhost:5432/my-db',
 })
 
@@ -264,49 +266,6 @@ exports.insertUsers = function(usernames) {
 
 **Note**: Or you can circumvent pg-extra entirely with `pool._query(string)`.
 
-## Why mutate `pg`?
-
-This library works by mutating the `pg` module with `extend(require('pg'))`
-to add and override its prototype methods.
-
-This is generally something you want to avoid when writing Javascript
-code. For example, I could have instead implemented this library as
-regular functions that just take `Client`/`Pool` instances:
-
-```javascript
-const {one, many, query, withTransaction, sql, _raw} = require('pg-extra')
-
-await one(client, sql`select * from users where id = ${id}`)
-
-await many(pool, sql`select * from users`)
-
-await withTransaction(async client => {
-    const user = await one(client, sql`insert into users (uname) values (${uname})`)
-    return query(client, sql`insert into profiles (user_id) values (${user.id})`)
-})
-```
-
-Seems reasonable at a glance.
-
-However, I decided against this because it would be too easy to introduce
-SQL injection vulnerabilities when mixing and matching this library
-with `pg`'s methods.
-
-For example, this would be an easy and possible mistake:
-
-```javascript
-await withTransaction(async client => {
-    const user = await client.query(`insert into users (uname) values (${uname})`)
-    return query(client, sql`insert into profiles (user_id) values (${user.id})`)
-})
-```
-
-Whoops, got used to `pg-extra`'s sweet string interpolation but accidentally used
-`pg`'s `client.query()` method instead. Now you have a SQL injection vulnerability.
-
-That's exactly the sort of mistake this library tries to prevent and I couldn't think
-of a better implementation than mutating `pg`.
-
 ## Test
 
 Setup local postgres database with seeded rows that the tests expect:
@@ -321,16 +280,19 @@ Then run the tests:
 
 ## CHANGELOG
 
-*   **v1.1.0**:
-    *   Added `SqlStatement#clone()`.
-*   **v1.0.0**:
-    *   Deprecated `q` and `_unsafe`.
-    *   Added bindings reuse optimization.
+-   **v2.0.0**:
+    -   `extend(require('pg'))` now creates extended Pool/Client in a `pg.extra.{Pool,Client}`
+        namespace instead of mutating pg's prototypes.
+-   **v1.1.0**:
+    -   Added `SqlStatement#clone()`.
+-   **v1.0.0**:
+    -   Deprecated `q` and `_unsafe`.
+    -   Added bindings reuse optimization.
 
 ## TODO
 
-*   Add `withTransaction()` to `pg.Client`.
-*   Add `stream()` to `pg.Client`.
+-   Add `withTransaction()` to `pg.extra.Client`.
+-   Add `stream()` to `pg.extra.Client`.
 
 [node-postgres]: https://github.com/brianc/node-postgres
 [knex]: http://knexjs.org/
