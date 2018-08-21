@@ -18,7 +18,7 @@ async function withClient(runner) {
 // WITHOUT TAG
 
 test('pool.query() requires tagged query', async (t) => {
-    t.throws(pool.query('SELECT 1'), /must build/)
+    await t.throws(pool.query('SELECT 1'), /must build/)
 })
 
 test('client.query() requires tagged query', async (t) => {
@@ -105,7 +105,7 @@ test('prepared() requires tag', async (t) => {
     const promise = pool
         .prepared('foo')
         .many(`select * from bars where n = ${1}`)
-    t.throws(promise, /must build/)
+    await t.throws(promise, /must build/)
 })
 
 test('pool.prepared().query() works', async (t) => {

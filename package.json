@@ -28,7 +28,7 @@
         "arrowParens": "always"
     },
     "devDependencies": {
-        "ava": "^0.16.0",
+        "ava": "^0.25.0",
         "pg": "^7.4.3",
         "prettier": "^1.14.2",
         "stream-to-array": "^2.3.0"
