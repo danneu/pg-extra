@@ -28,9 +28,9 @@
         "arrowParens": "always"
     },
     "devDependencies": {
-        "ava": "^0.25.0",
-        "pg": "^7.4.3",
-        "prettier": "^1.14.2",
+        "ava": "^3.0.0",
+        "pg": "^7.17.1",
+        "prettier": "^1.19.1",
         "stream-to-array": "^2.3.0"
     },
     "engines": {
@@ -38,8 +38,8 @@
     },
     "license": "MIT",
     "dependencies": {
-        "clone-deep": "^4.0.0",
-        "pg-query-stream": "^1.1.1",
+        "clone-deep": "^4.0.1",
+        "pg-query-stream": "^3.0.0",
         "pump": "^3.0.0"
     }
 }

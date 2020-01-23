@@ -18,17 +18,19 @@ async function withClient(runner) {
 // WITHOUT TAG
 
 test('pool.query() requires tagged query', async (t) => {
-    await t.throws(pool.query('SELECT 1'), /must build/)
+    await t.throwsAsync(pool.query('SELECT 1'), { message: /must build/ })
 })
 
 test('client.query() requires tagged query', async (t) => {
     await withClient((client) => {
-        t.throws(client.query('SELECT 1'), /must build/)
+        t.throwsAsync(client.query('SELECT 1'), { message: /must build/ })
     })
 })
 
 test('append() fails if untagged', async (t) => {
-    t.throws(() => pool.query(sql`SELECT 1`.append('nope')), /must build/)
+    t.throws(() => pool.query(sql`SELECT 1`.append('nope')), {
+        message: /must build/,
+    })
 })
 
 // WITH TAG
@@ -105,7 +107,7 @@ test('prepared() requires tag', async (t) => {
     const promise = pool
         .prepared('foo')
         .many(`select * from bars where n = ${1}`)
-    await t.throws(promise, /must build/)
+    await t.throwsAsync(promise, { message: /must build/ })
 })
 
 test('pool.prepared().query() works', async (t) => {
