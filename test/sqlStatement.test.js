@@ -133,3 +133,15 @@ test('append() accepts ignores falsey values', async (t) => {
 
     t.deepEqual(stmt.text, 'SELECT 42')
 })
+
+test('does not apply binding-reuse optimization to nil values', (t) => {
+    const a = null
+    const b = null
+    const c = undefined
+    const d = undefined
+    const stmt = sql`INSERT INTO foo (a, b, c, d) VALUES (${a}, ${b}, ${c}, ${d})`
+    t.deepEqual({ text: stmt.text, values: stmt.values }, {
+        text: 'INSERT INTO foo (a, b, c, d) VALUES ($1, $2, $3, $4)',
+        values: [null, null, undefined, undefined]
+    })
+})

@@ -31,7 +31,7 @@ class SqlStatement {
             .slice(0, this.strings.length - 1)
             .concat([
                 `${this.strings[this.strings.length - 1]} ${
-                    statement.strings[0]
+                statement.strings[0]
                 }`,
                 ...statement.strings.slice(1),
             ])
@@ -50,10 +50,18 @@ class SqlStatement {
     //
     // Attempts to remove newline and indentation noise.
     get text() {
+        // FIXME: This got out of hand while implementing a quickfix for #11. Find a simpler solution.
+        let prevNilIdx = -1
         const text = this.strings.reduce((prev, curr, i) => {
             const v = this.values[this.bindings[i - 1]]
-            // TODO: Use Map for reverse lookup
-            const binding = this.values.indexOf(v) + 1
+            let binding
+            if (isNil(v)) {
+                const idx = this.values.slice(prevNilIdx + 1).indexOf(v) + prevNilIdx + 1
+                binding = idx + 1
+                prevNilIdx = idx
+            } else {
+                binding = this.values.indexOf(v) + 1
+            }
             return `${prev}$${binding}${curr}`
         })
 
@@ -64,14 +72,18 @@ class SqlStatement {
     _addValues(values) {
         for (const v of values) {
             const i = this.values.indexOf(v)
-            if (i > -1) {
-                this.bindings.push(i)
-            } else {
+            if (i < 0 || isNil(v)) {
                 this.values.push(v)
                 this.bindings.push(this.values.length - 1)
+            } else {
+                this.bindings.push(i)
             }
         }
     }
+}
+
+function isNil(x) {
+    return x === null || typeof x === 'undefined'
 }
 
 // TAGGED STRING TEMPLATES
