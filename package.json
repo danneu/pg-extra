@@ -39,6 +39,7 @@
     "license": "MIT",
     "dependencies": {
         "clone-deep": "^4.0.1",
+        "pg-pool": "^3.6.0",
         "pg-query-stream": "^3.0.0"
     }
 }

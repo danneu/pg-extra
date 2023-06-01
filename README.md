@@ -174,54 +174,6 @@ statement1.text === 'SELECT 100'
 statement2.text === 'SELECT 100 , 200'
 ```
 
-### Optimization: Bindings Reuse
-
-(Added in v1.0)
-
-Bindings are reused for equal (`===`) values.
-
-For example:
-
-```javascript
-const bbcode = '[b]hello world[/b]'
-
-pool.query(sql`
-    INSERT INTO posts (length, bbcode, html)
-    VALUES (char_length(${bbcode}), ${bbcode}, bbcode_to_html(${bbcode}))
-`)
-```
-
-pg-extra sends that query over the wire to Postgres as this:
-
-```javascript
-{
-    text: `
-        INSERT INTO posts (length, bbcode, html)
-        VALUES (char_length($1), $1, bbcode_to_html($1))
-    `,
-    values: ['[b]hello world[/b]']
-}
-```
-
-rather than this:
-
-```javascript
-{
-    text: `
-        INSERT INTO posts (length, bbcode, html)
-        VALUES (char_length($1), $2, bbcode_to_html($3))
-    `,
-    values: ['[b]hello world[/b]', '[b]hello world[/b]', '[b]hello world[/b]']
-}
-```
-
-Since `bbcode === bbcode`, pg-extra will reuse the `$1` binding
-instead of creating and broadcasting additional bindings `$2` and `$3`.
-
-Keep in mind that `===` equality compares non-primitive objects like arrays
-by reference, so `VALUES (${[1, 2]}, ${[1, 2]})` (i.e. two different arrays)
-will be sent as two bindings even though they have the same contents.
-
 ## Cookbook
 
 ### Dynamic Queries

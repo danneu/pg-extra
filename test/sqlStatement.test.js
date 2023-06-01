@@ -48,23 +48,6 @@ test('interpolates multiple bindings', (t) => {
     t.deepEqual(statement.values, ['foo', [1, 2, 3]])
 })
 
-// =========================================================
-// BINDING REUSE
-
-test('reuses bindings', (t) => {
-    const statement = sql`SELECT * FROM users WHERE a = ${42} AND b = ${100} AND c = ${42}`
-    t.deepEqual(statement.values, [42, 100])
-})
-
-test('reuses bindings through .append()', (t) => {
-    const statement = sql`SELECT * FROM users WHERE a = ${42} AND b = ${100} AND c = ${42}`
-        .append(_raw`AND d = ${999}`)
-        .append(sql`AND e = ${101} AND f = ${42}`)
-    t.deepEqual(statement.values, [42, 100, 101])
-})
-
-// =========================================================
-
 test('append() adds a space', (t) => {
     t.is(sql`a`.append(_raw`b`).text, 'a b')
 })
@@ -140,8 +123,11 @@ test('does not apply binding-reuse optimization to nil values', (t) => {
     const c = undefined
     const d = undefined
     const stmt = sql`INSERT INTO foo (a, b, c, d) VALUES (${a}, ${b}, ${c}, ${d})`
-    t.deepEqual({ text: stmt.text, values: stmt.values }, {
-        text: 'INSERT INTO foo (a, b, c, d) VALUES ($1, $2, $3, $4)',
-        values: [null, null, undefined, undefined]
-    })
+    t.deepEqual(
+        { text: stmt.text, values: stmt.values },
+        {
+            text: 'INSERT INTO foo (a, b, c, d) VALUES ($1, $2, $3, $4)',
+            values: [null, null, undefined, undefined],
+        }
+    )
 })
