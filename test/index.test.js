@@ -131,14 +131,14 @@ test('pool.prepared().one() works', async (t) => {
 
 // TRANSACTION
 
-test('withTransaction sanity check', async (t) => {
+test('pool withTransaction sanity check', async (t) => {
     await pool.withTransaction(async (client) => {
         const { n } = await client.one(sql`SELECT 1 n`)
         t.is(n, 1)
     })
 })
 
-test('withTransaction can successfully rollback', async (t) => {
+test('pool withTransaction can successfully rollback', async (t) => {
     try {
         await pool.withTransaction(async () => {
             throw new Error('fake error')

@@ -1,7 +1,6 @@
 const SqlStatement = require('./sqlStatement')
 const PgPool = require('pg-pool')
-const pump = require('pump')
-const { Transform } = require('stream')
+const { Transform, pipeline } = require('stream')
 const QueryStream = require('pg-query-stream')
 
 class Prepared {
@@ -66,7 +65,7 @@ const Base = (pg, name) => {
     return Base
 }
 
-const withTransaction = async function(runner) {
+const withTransaction = async function (runner) {
     const client = await this.connect()
 
     async function rollback(err) {
@@ -117,7 +116,7 @@ const withTransaction = async function(runner) {
 
 const identity = (x) => x
 
-const poolStream = async function(statement, transform = identity) {
+const poolStream = async function (statement, transform = identity) {
     if (!(statement instanceof SqlStatement)) {
         throw new Error('must build query with sql or _raw')
     }
@@ -126,7 +125,7 @@ const poolStream = async function(statement, transform = identity) {
     const stream = client._query(query)
     const output = new Transform({
         objectMode: true,
-        transform(row, encoding, cb) {
+        transform(row, _, cb) {
             let transformed
             try {
                 transformed = transform(row)
@@ -137,7 +136,10 @@ const poolStream = async function(statement, transform = identity) {
         },
     })
 
-    return pump(stream, output, (err) => {
+    return pipeline(stream, output, (err) => {
+        if (err) {
+            console.error(err)
+        }
         client.release()
     })
 }
